@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encuentra tu clínica Cleardent más cercana</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cd-primary: #007BFF;
+    --cd-primary-hover: #2563EB;
+    --cd-primary-active: #1D4ED8;
+    --cd-secondary: #003471;
+    --cd-shadow-pin: #5AABFF;
+    --cd-bg: #F9FAFB;
+    --cd-surface: #F4F6F8;
+    --cd-border: #E5E7EB;
+    --cd-text: #374151;
+    --cd-text-light: #6B7280;
+    --cd-muted: #6B7280;
+    --cd-shadow-card: 0 16px 35px 0 rgba(47,98,217,0.28);
+    --cd-shadow-card-hover: 0 16px 35px 0 rgba(10,20,100,0.4);
+    --cd-radius-xl: 30px;
+    --cd-radius-pill: 9999px;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--cd-text);
+    background: var(--cd-bg);
+  }
+  .cd-wrap {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+  }
+  .cd-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .cd-header h1 {
+    font-size: 25px;
+    font-weight: 700;
+    color: var(--cd-primary);
+    margin: 0 0 6px;
+  }
+  .cd-header p {
+    margin: 0;
+    color: var(--cd-muted);
+    font-size: 15px;
+  }
+  .cleardent-search-widget {
+    position: relative;
+    max-width: 440px;
+    margin: 18px auto 0;
+  }
+  .cleardent-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #fff;
+    border: 1px solid var(--cd-border);
+    border-radius: var(--cd-radius-pill);
+    padding: 12px 18px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .cleardent-search:focus-within {
+    border-color: var(--cd-primary);
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.15);
+  }
+  .cleardent-search .search-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    color: var(--cd-text-light);
+  }
+  .cleardent-search input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: none;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--cd-text);
+  }
+  .cleardent-search input::placeholder {
+    color: var(--cd-text-light);
+  }
+  .cleardent-search-results {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 8px);
+    background: #fff;
+    border: 1px solid var(--cd-border);
+    border-radius: 16px;
+    box-shadow: var(--cd-shadow-card-hover);
+    max-height: 320px;
+    overflow-y: auto;
+    z-index: 20;
+    padding: 6px;
+  }
+  .cleardent-search-result {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .cleardent-search-result:hover {
+    background: var(--cd-surface);
+  }
+  .cleardent-search-result-name {
+    font-weight: 600;
+    font-size: 13.5px;
+    color: var(--cd-secondary);
+  }
+  .cleardent-search-result-addr {
+    font-size: 12px;
+    color: var(--cd-text-light);
+    margin-top: 1px;
+  }
+  .cleardent-search-empty {
+    padding: 14px 12px;
+    font-size: 13px;
+    color: var(--cd-text-light);
+    text-align: center;
+    line-height: 1.6;
+  }
+  .cleardent-search-empty a {
+    color: var(--cd-primary);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .cleardent-search-empty a:hover { text-decoration: underline; }
+
+  .cd-layout {
+    display: flex;
+    gap: 20px;
+    margin-top: 22px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── Carrusel ── */
+  .cd-carousel-wrap {
+    width: 380px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .cd-carousel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+  .cd-car-viewport {
+    flex: 1;
+    min-width: 0;
+    border-radius: var(--cd-radius-xl);
+  }
+  .cd-car-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    height: 480px;
+    padding: 24px;
+    border-radius: var(--cd-radius-xl);
+    background: #fff;
+    box-shadow: var(--cd-shadow-card);
+    transition: opacity 0.18s ease, transform 0.18s ease, box-shadow 0.2s ease;
+  }
+  .cd-car-card[hidden] {
+    display: none !important;
+  }
+  .cd-car-card:hover {
+    box-shadow: var(--cd-shadow-card-hover);
+  }
+  .cd-car-card.cd-car-fade {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  .cd-car-head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+  }
+  .cd-car-badge {
+    align-self: center;
+    background: rgba(0,123,255,0.1);
+    color: var(--cd-primary);
+    padding: 4px 12px;
+    border-radius: var(--cd-radius-pill);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .cd-car-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--cd-secondary);
+    margin: 0;
+    line-height: 1.15;
+  }
+  .cd-car-clinics {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border-top: 1px solid var(--cd-border);
+    padding-top: 10px;
+  }
+  .cd-car-clinic-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--cd-border);
+  }
+  .cd-car-clinic-row:last-child { border-bottom: none; }
+  .cd-car-clinic-pin {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--cd-text-light);
+  }
+  .cd-car-clinic-name {
+    font-weight: 700;
+    font-size: 13.5px;
+    color: var(--cd-secondary);
+  }
+  .cd-car-clinic-addr {
+    font-size: 12.5px;
+    color: var(--cd-text-light);
+    line-height: 1.4;
+    margin-top: 1px;
+  }
+  .cd-car-cta {
+    align-self: center;
+    text-align: center;
+    background: var(--cd-primary);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 12px 24px;
+    border-radius: var(--cd-radius-pill);
+    transition: background 0.2s ease;
+  }
+  .cd-car-cta:hover { background: var(--cd-primary-hover); }
+  .cd-car-nav {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid var(--cd-border);
+    color: var(--cd-primary);
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .cd-car-nav:hover { background: #EEF2FF; }
+  .cd-car-dots {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 16px;
+  }
+  .cd-car-dot {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: var(--cd-border);
+    cursor: pointer;
+    transition: width 0.15s ease, background 0.15s ease;
+  }
+  .cd-car-dot.active {
+    width: 22px;
+    background: var(--cd-primary);
+  }
+
+  /* ── Mapa ── */
+  .cd-map-outer {
+    position: relative;
+    flex: 1 1 620px;
+    max-width: 620px;
+    min-width: 0;
+  }
+  .cd-spain-map svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .province {
+    stroke: var(--cd-primary);
+    stroke-width: 0.8;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    transition: fill 0.2s ease, opacity 0.2s ease;
+  }
+  .province.has-clinics { fill: rgba(0,123,255,0.10); }
+  .province.dimmed { opacity: 0.25; }
+
+  .prov-group { cursor: pointer; }
+  .prov-group.dimmed { opacity: 0.25; }
+  .pin-scale {
+    transition: transform 0.15s ease;
+    transform-box: fill-box;
+    transform-origin: center bottom;
+  }
+  .prov-group:hover .pin-scale,
+  .prov-group.cd-selected .pin-scale {
+    transform: scale(1.25);
+  }
+  .prov-group:hover .pin-body,
+  .prov-group.cd-selected .pin-body {
+    fill: var(--cd-primary-active);
+  }
+  .pin-shadow { opacity: 0.65; pointer-events: none; }
+
+  .cd-map-tip {
+    position: absolute;
+    pointer-events: none;
+    z-index: 10;
+    background: var(--cd-primary);
+    color: #fff;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 4px 14px rgba(0,123,255,0.3);
+    opacity: 0;
+    transition: opacity 0.12s ease;
+    left: -9999px;
+    top: -9999px;
+  }
+  .cd-map-tip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--cd-primary);
+  }
+
+  @media (max-width: 900px) {
+    .cd-layout { flex-direction: column-reverse; }
+    .cd-carousel-wrap { width: 100%; }
+    .cd-map-outer { width: 100%; max-width: 100%; flex: 0 0 auto; }
+    .cd-car-card { height: 440px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cd-wrap">
+  <div class="cd-header">
+    <h1>Encuentra tu clínica Cleardent más cercana</h1>
+    <p id="cdSubtitle"></p>
+  </div>
+
+  <div class="cleardent-search-widget">
+    <div class="cleardent-search">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+      <input type="text" id="cleardent-search-input" placeholder="Encuentra tu clínica Cleardent" autocomplete="off">
+    </div>
+    <div class="cleardent-search-results" id="cleardentSearchResults" style="display:none;"></div>
+  </div>
+
+  <div class="cd-layout">
+    <div class="cd-carousel-wrap">
+      <div class="cd-carousel" id="cdCarousel">
+        <button class="cd-car-nav" id="cdCarPrev" type="button" aria-label="Provincia anterior">&#10094;</button>
+        <div class="cd-car-viewport">
+          <div class="cd-car-card" id="cdCarCard">
+            <div class="cd-car-head">
+              <span class="cd-car-badge" id="cdCarBadge"></span>
+              <h2 class="cd-car-title" id="cdCarTitle"></h2>
+            </div>
+            <div class="cd-car-clinics" id="cdCarClinics"></div>
+            <a class="cd-car-cta" href="https://clear.cleardent.es/convenios/travelclub#pide-cita" target="_blank" rel="noopener">Pide tu cita&nbsp;→</a>
+          </div>
+        </div>
+        <button class="cd-car-nav" id="cdCarNext" type="button" aria-label="Provincia siguiente">&#10095;</button>
+      </div>
+      <div class="cd-car-dots" id="cdCarDots"></div>
+    </div>
+    <div class="cd-map-outer">
+      <figure class="cd-spain-map" role="img" aria-label="Mapa de España con clínicas dentales Cleardent por provincia">
+        <svg id="cdSvg" viewBox="0 0 1000 832" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <g id="pin-main">
+              <path class="pin-body" fill="#007BFF" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"
+                transform="translate(-26,-78)"
+                d="M26 0C11.7 0 0 11.7 0 26c0 19.5 26 52 26 52s26-32.5 26-52C52 11.7 40.3 0 26 0z"/>
+              <g fill="#fff" transform="translate(-18.69,-69.06) scale(0.1625)">
+                <path d="M179.6,45.05c-14.64-14.56-40.48-17.56-62.83-17.56s-48.54,2.99-63.19,17.56c-14.65,14.57-17.73,40.7-17.73,62.92s3.09,48.28,17.73,62.84c14.64,14.56,40.84,17.63,63.19,17.63s48.55-3.07,63.19-17.63c14.64-14.57,17.73-40.62,17.73-62.84s-3.45-48.35-18.09-62.92ZM141.16,63.07s0,12.27-24.39,12.27c0,0,0-12.27,24.39-12.27ZM117.08,131.58c7.34,0,12.67-4.26,14.47-12.03v-.09h19.29c-1.67,19.1-16.33,28.51-33.76,28.51-19.34,0-34.38-14.59-34.38-33.15s15.05-33.15,34.38-33.15c16,0,31.13,8.64,33.76,27.94h-19.29c-1.81-7.48-7.14-11.56-14.47-11.56-8.95,0-15.9,7.29-15.9,16.76s6.95,16.77,15.9,16.77Z"/>
+              </g>
+            </g>
+            <g id="pin-shadow">
+              <path fill="#5AABFF" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"
+                transform="translate(-8,-24)"
+                d="M8 0C3.6 0 0 3.6 0 8c0 6 8 16 8 16s8-10 8-16C16 3.6 12.4 0 8 0z"/>
+            </g>
+          </defs>
+          <g class="provinces" id="cdProvinces"></g>
+          <g class="pins" id="cdPins"></g>
+        </svg>
+      </figure>
+      <div class="cd-map-tip" id="cdMapTip" aria-hidden="true"><span id="cdMapTipText"></span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var CLINICS = [{"n":"Albacete","c":"Albacete","p":"Albacete","a":"Av. Isabel la Católica, 38","t":"967 80 26 02","lat":38.9995124,"lng":-1.8604237,"w":"https://www.cleardent.es/clinica-dental/albacete/albacete-capital/"},{"n":"Adra","c":"Adra","p":"Almería","a":"C. Mateo, 2","t":"950 68 13 06","lat":36.7492639,"lng":-3.0132878,"w":"https://www.cleardent.es/clinica-dental/almeria/adra/"},{"n":"Almería","c":"Almería","p":"Almería","a":"Avenida de la Vega de Aca, 13","t":"950 68 13 01","lat":36.8242874,"lng":-2.4401402,"w":"https://www.cleardent.es/clinica-dental/almeria/almeria-capital/"},{"n":"Almerimar","c":"Almerimar","p":"Almería","a":"Calle Arquitecto Julián Laguna, 25","t":"950 68 13 04","lat":36.6995047,"lng":-2.7890545,"w":"https://www.cleardent.es/clinica-dental/almeria/almerimar/"},{"n":"Garrucha","c":"Garrucha","p":"Almería","a":"Calle Mayor, 184","t":"950 68 13 05","lat":37.178735,"lng":-1.8228206,"w":"https://www.cleardent.es/clinica-dental/almeria/garrucha/"},{"n":"Huércal-Overa","c":"Huércal - Overa","p":"Almería","a":"Calle Dr. Jiménez Díaz, 47","t":"950 68 13 08","lat":37.3980572,"lng":-1.9418124,"w":"https://www.cleardent.es/clinica-dental/almeria/huercal-overa/"},{"n":"Roquetas de Mar","c":"Roquetas de Mar","p":"Almería","a":"Ctra. de Alicun, 339","t":"950 68 13 03","lat":36.8048456,"lng":-2.5994817,"w":"https://www.cleardent.es/clinica-dental/almeria/roquetas-de-mar/"},{"n":"Vera","c":"Vera","p":"Almería","a":"C/ del Mar, esquina pasaje Saturno","t":"950 68 13 07","lat":37.2473539,"lng":-1.8660854,"w":"https://www.cleardent.es/clinica-dental/almeria/vera/"},{"n":"Barcelona Provença","c":"Barcelona","p":"Barcelona","a":"C/ de Provença, 116, Local 1","t":"930 46 65 93","lat":41.3857551,"lng":2.1496784,"w":"https://www.cleardent.es/clinica-dental/barcelona/barcelona-provenca/"},{"n":"Barcelona Eixample","c":"Barcelona","p":"Barcelona","a":"C/ d'Aragó, 355","t":"930 46 75 85","lat":41.3974859,"lng":2.1715705,"w":"https://www.cleardent.es/clinica-dental/barcelona/barcelona-arago/"},{"n":"Chiclana de la Frontera","c":"Chiclana de la Frontera","p":"Cádiz","a":"Plaza de las Bodegas, s/n, bloque 1","t":"856 14 13 11","lat":36.4199841,"lng":-6.1502014,"w":"https://www.cleardent.es/clinica-dental/cadiz/chiclana-de-la-frontera/"},{"n":"San Fernando","c":"San Fernando","p":"Cádiz","a":"C. San Rafael, 21","t":"856 14 13 01","lat":36.4702348,"lng":-6.1955837,"w":"https://www.cleardent.es/clinica-dental/cadiz/san-fernando/"},{"n":"Sanlúcar de Barrameda","c":"Sanlúcar de Barrameda","p":"Cádiz","a":"Avenida Quinto centenario, 92, Edificio América","t":"856 14 13 02","lat":36.7783247,"lng":-6.3593191,"w":"https://www.cleardent.es/clinica-dental/cadiz/sanlucar/"},{"n":"Bujalance","c":"Bujalance","p":"Córdoba","a":"San Antonio 8","t":"857 88 15 03","lat":37.8958425,"lng":-4.3794748,"w":"https://cleardent-landings.vercel.app/r/gbp/bujalance/web"},{"n":"Córdoba","c":"Córdoba","p":"Córdoba","a":"C. Escritor Conde de Zamora, 14","t":"857 88 15 00","lat":37.8739774,"lng":-4.7983552,"w":"https://cleardent-landings.vercel.app/r/gbp/cordoba/web"},{"n":"Montoro","c":"Montoro","p":"Córdoba","a":"Calle Cervantes, 31","t":"857 88 15 06","lat":38.0183381,"lng":-4.3828814,"w":"https://cleardent-landings.vercel.app/r/gbp/montoro/web"},{"n":"Palma del Río","c":"Palma del Río","p":"Córdoba","a":"Avenida Santa Ana, esquina con Avenida La Paz 2","t":"857 88 15 04","lat":37.6986658,"lng":-5.2775369,"w":"https://cleardent-landings.vercel.app/r/gbp/palma-del-rio/web"},{"n":"Priego de Córdoba","c":"Priego de Córdoba","p":"Córdoba","a":"Carrera de las Monjas 25","t":"857 88 15 05","lat":37.4383215,"lng":-4.1959981,"w":"https://cleardent-landings.vercel.app/r/gbp/priego/web"},{"n":"Villa del Río","c":"Villa del Río","p":"Córdoba","a":"C/ Blas Infante, 3","t":"857 88 15 01","lat":37.982118,"lng":-4.29147,"w":"https://cleardent-landings.vercel.app/r/gbp/villa-del-rio/web"},{"n":"Albolote","c":"Albolote","p":"Granada","a":"Paseo de Colón, 10","t":"858 80 17 09","lat":37.2293592,"lng":-3.6531191,"w":"https://www.cleardent.es/clinica-dental/granada/albolote/"},{"n":"Almuñécar","c":"Almuñécar","p":"Granada","a":"Av. Costa del Sol, 1","t":"858 80 17 10","lat":36.7354281,"lng":-3.6913264,"w":"https://www.cleardent.es/clinica-dental/granada/almunecar/"},{"n":"Baza","c":"Baza","p":"Granada","a":"Sierra Morena 21","t":"858 80 17 11","lat":37.4890914,"lng":-2.7687872,"w":"https://www.cleardent.es/clinica-dental/granada/baza/"},{"n":"Dúrcal","c":"Dúrcal","p":"Granada","a":"C/ Rocío Dúrcal, 2","t":"858 80 17 00","lat":36.9879302,"lng":-3.5668372,"w":"https://www.cleardent.es/clinica-dental/granada/durcal/"},{"n":"Gójar","c":"Gójar","p":"Granada","a":"Avenida Carmen Morcillo 8, Bloque 2, Planta Baja-2","t":"858 80 17 25","lat":37.105692,"lng":-3.6035189,"w":"https://www.cleardent.es/clinica-dental/granada/gojar/"},{"n":"Granada","c":"Granada","p":"Granada","a":"Calle Ovidio 5, planta baja","t":"858 80 17 03","lat":37.2003937,"lng":-3.6162591,"w":"https://www.cleardent.es/clinica-dental/granada/granada-ovidio/"},{"n":"Granada Genil","c":"Granada","p":"Granada","a":"C. Acera del Darro, 72","t":"858 80 17 02","lat":37.1701637,"lng":-3.5979668,"w":"https://www.cleardent.es/clinica-dental/granada/granada-genil/"},{"n":"Íllora","c":"Íllora","p":"Granada","a":"Avenida San Rogelio, 2","t":"858 80 17 12","lat":37.2863827,"lng":-3.8781,"w":"https://www.cleardent.es/clinica-dental/granada/illora/"},{"n":"Loja","c":"Loja","p":"Granada","a":"Avenida Rafael Pérez del Álamo, 7, Local 3","t":"858 80 17 13","lat":37.1643191,"lng":-4.1422707,"w":"https://www.cleardent.es/clinica-dental/granada/loja/"},{"n":"Salobreña","c":"Salobreña","p":"Granada","a":"Av Federico García Lorca 5","t":"858 80 17 14","lat":36.74376,"lng":-3.5833897,"w":"https://www.cleardent.es/clinica-dental/granada/salobrena/"},{"n":"Alcalá la Real","c":"Alcalá la Real","p":"Jaén","a":"Calle Miguel de Cervantes, 4, 6","t":"953 80 07 07","lat":37.4622647,"lng":-3.9230373,"w":"https://www.cleardent.es/clinica-dental/jaen/alcala-la-real/"},{"n":"Andújar","c":"Andújar","p":"Jaén","a":"Av Doce de Agosto, 8","t":"953 80 07 01","lat":38.0386404,"lng":-4.0556671,"w":"https://www.cleardent.es/clinica-dental/jaen/andujar/"},{"n":"Jaén","c":"Jaén","p":"Jaén","a":"Av. Eduardo Garcia Maroto 2","t":"953 22 53 34","lat":37.7771025,"lng":-3.7897517,"w":"https://www.cleardent.es/clinica-dental/jaen/jaen-capital/"},{"n":"Linares","c":"Linares","p":"Jaén","a":"Plaza del Ayuntamiento, 3","t":"953 80 07 02","lat":38.0938546,"lng":-3.6356374,"w":"https://www.cleardent.es/clinica-dental/jaen/linares/"},{"n":"Martos","c":"Martos","p":"Jaén","a":"Avenida Aceituneros, 16","t":"953 80 07 03","lat":37.7184827,"lng":-3.9720938,"w":"https://www.cleardent.es/clinica-dental/jaen/martos/"},{"n":"Mengíbar","c":"Mengíbar","p":"Jaén","a":"Calle Real, 8","t":"953 80 07 05","lat":37.9693759,"lng":-3.8096133,"w":"https://www.cleardent.es/clinica-dental/jaen/mengibar/"},{"n":"Torredonjimeno","c":"Torredonjimeno","p":"Jaén","a":"Calle Puerta de Jaén, 7","t":"953 80 07 04","lat":37.7664542,"lng":-3.9558376,"w":"https://www.cleardent.es/clinica-dental/jaen/torredonjimeno/"},{"n":"Alcorcón","c":"Alcorcón","p":"Madrid","a":"Calle Mayor, 48","t":"919 22 78 04","lat":40.34655559999999,"lng":-3.8277448,"w":"https://www.cleardent.es/clinica-dental/madrid/alcorcon/"},{"n":"Fuenlabrada","c":"Fuenlabrada","p":"Madrid","a":"C. de la Plaza., 45","t":"919 22 76 44","lat":40.2831474,"lng":-3.795328399999999,"w":"https://www.cleardent.es/clinica-dental/madrid/fuenlabrada/"},{"n":"Leganés","c":"Leganés","p":"Madrid","a":"Av. Rey Juan Carlos I, 90","t":"919 22 77 48","lat":40.335916,"lng":-3.7419802,"w":"https://www.cleardent.es/clinica-dental/madrid/leganes/"},{"n":"Chamartín","c":"Madrid","p":"Madrid","a":"Calle del Príncipe de Vergara, 252","t":"919 22 78 05","lat":40.455426,"lng":-3.6768249,"w":"https://www.cleardent.es/clinica-dental/madrid/chamartin/"},{"n":"Barrio de Salamanca","c":"Madrid","p":"Madrid","a":"C/ de Francisco Silvela, 53","t":"919 49 53 38","lat":40.4337254,"lng":-3.6739358,"w":"https://www.cleardent.es/clinica-dental/madrid/barrio-salamanca/"},{"n":"Argüelles","c":"Madrid","p":"Madrid","a":"C. de Altamirano, 46","t":"919 22 76 45","lat":40.4299596,"lng":-3.7213752,"w":"https://www.cleardent.es/clinica-dental/madrid/arguelles/"},{"n":"Chamberí","c":"Madrid","p":"Madrid","a":"C. de Fernández de los Ríos, 7","t":"919 49 60 93","lat":40.4348074,"lng":-3.7054967,"w":"https://www.cleardent.es/clinica-dental/madrid/chamberi/"},{"n":"Pacífico","c":"Madrid","p":"Madrid","a":"C. del Dr. Esquerdo, 197","t":"919 49 45 91","lat":40.402909,"lng":-3.6728215,"w":"https://www.cleardent.es/clinica-dental/madrid/pacifico/"},{"n":"Carabanchel","c":"Madrid","p":"Madrid","a":"P.º de Marcelino Camacho, 16","t":"919 49 98 60","lat":40.3859429,"lng":-3.7407477,"w":"https://www.cleardent.es/clinica-dental/madrid/carabanchel/"},{"n":"Arganzuela","c":"Madrid","p":"Madrid","a":"P.º de Sta. María de la Cabeza, 44","t":"919 49 11 71","lat":40.403689,"lng":-3.697068,"w":"https://www.cleardent.es/clinica-dental/madrid/arganzuela/"},{"n":"Tetuán","c":"Madrid","p":"Madrid","a":"C. de la Infanta Mercedes, 117","t":"919 22 78 41","lat":40.4643943,"lng":-3.6929403,"w":"https://www.cleardent.es/clinica-dental/madrid/tetuan/"},{"n":"Aravaca","c":"Madrid","p":"Madrid","a":"Carr. de Húmera, 69","t":"919 03 29 18","lat":40.4571654,"lng":-3.7797603,"w":"https://www.cleardent.es/clinica-dental/madrid/aravaca/"},{"n":"Bravo Murillo","c":"Madrid","p":"Madrid","a":"C. de Bravo Murillo, 211","t":"919 49 98 59","lat":40.4560143,"lng":-3.7024945,"w":"https://www.cleardent.es/clinica-dental/madrid/bravo-murillo/"},{"n":"San Isidro","c":"Madrid","p":"Madrid","a":"Calle del Gral. Ricardos, 10","t":"911 98 46 10","lat":40.3971722,"lng":-3.7174307,"w":"https://www.cleardent.es/clinica-dental/madrid/san-isidro/"},{"n":"Majadahonda","c":"Majadahonda","p":"Madrid","a":"Av. España, 24","t":"919 22 78 40","lat":40.4722758,"lng":-3.8683978,"w":"https://www.cleardent.es/clinica-dental/madrid/majadahonda/"},{"n":"San Sebastián de los Reyes","c":"San Sebastián de los Reyes","p":"Madrid","a":"Av. de España, 12","t":"919 49 53 77","lat":40.5441143,"lng":-3.6286558,"w":"https://www.cleardent.es/clinica-dental/madrid/san-sebastian-de-los-reyes/"},{"n":"Torrejón de Ardoz","c":"Torrejón de Ardoz","p":"Madrid","a":"Av. de la Unión Europea, 3","t":"919 49 53 76","lat":40.4581419,"lng":-3.4525713,"w":"https://www.cleardent.es/clinica-dental/madrid/torrejon-de-ardoz/"},{"n":"Fuengirola","c":"Fuengirola","p":"Málaga","a":"Av. de Mijas, 36","t":"951 12 53 19","lat":36.544269,"lng":-4.6308019,"w":"https://www.cleardent.es/clinica-dental/malaga/fuengirola/"},{"n":"Málaga Carlos Haya","c":"Málaga","p":"Málaga","a":"Av. Carlos Haya, esquina, Av. Santa Rosa de Lima","t":"951 12 53 09","lat":36.7221087,"lng":-4.4486729,"w":"https://www.cleardent.es/clinica-dental/malaga/carlos-haya/"},{"n":"Nerja","c":"Nerja","p":"Málaga","a":"C. San Miguel, 18","t":"951 12 53 12","lat":36.7497178,"lng":-3.8777465,"w":"https://www.cleardent.es/clinica-dental/malaga/nerja/"},{"n":"Torre del Mar","c":"Torre del Mar","p":"Málaga","a":"Paseo Larios, 1","t":"951 12 53 17","lat":36.7419584,"lng":-4.0934019,"w":"https://www.cleardent.es/clinica-dental/malaga/torre-del-mar/"},{"n":"Alhama de Murcia","c":"Alhama de Murcia","p":"Murcia","a":"C. Feria, 29","t":"868 48 40 61","lat":37.8511911,"lng":-1.4242567,"w":"https://www.cleardent.es/clinica-dental/murcia/alhama-de-murcia/"},{"n":"Arahal","c":"Arahal","p":"Sevilla","a":"Avenida Verdeo, N12, Es 1, Puerta 10A","t":"954 05 40 66","lat":37.2573938,"lng":-5.5498419,"w":"https://www.cleardent.es/clinica-dental/sevilla/arahal/"},{"n":"Carmona","c":"Carmona","p":"Sevilla","a":"C. P.º de San Antón, 8","t":"954 05 63 47","lat":37.4667198,"lng":-5.645035,"w":"https://www.cleardent.es/clinica-dental/sevilla/carmona/"},{"n":"La Puebla de Cazalla","c":"La Puebla de Cazalla","p":"Sevilla","a":"Calle Victoria 18,","t":"954 05 40 68","lat":37.2224715,"lng":-5.3110536,"w":"https://www.cleardent.es/clinica-dental/sevilla/la-puebla-de-cazalla/"},{"n":"Marchena","c":"Marchena","p":"Sevilla","a":"Calle San Sebastián, 4","t":"954 05 40 67","lat":37.3287931,"lng":-5.415296,"w":"https://www.cleardent.es/clinica-dental/sevilla/marchena/"},{"n":"Osuna","c":"Osuna","p":"Sevilla","a":"Calle Carrera, 35","t":"954 05 40 63","lat":37.2384921,"lng":-5.1036827,"w":"https://www.cleardent.es/clinica-dental/sevilla/osuna/"},{"n":"Sevilla","c":"Sevilla","p":"Sevilla","a":"C. Luis Montoto, 105,","t":"954 05 63 21","lat":37.3875406,"lng":-5.9708227,"w":"https://www.cleardent.es/clinica-dental/sevilla/sevilla-capital/"},{"n":"Tomares","c":"Tomares","p":"Sevilla","a":"Calle Navarro Caro, 27","t":"954 05 63 48","lat":37.3752048,"lng":-6.0473775,"w":"https://www.cleardent.es/clinica-dental/sevilla/tomares/"},{"n":"Utrera","c":"Utrera","p":"Sevilla","a":"Calle la Fuente Vieja, 22","t":"954 05 63 49","lat":37.181671,"lng":-5.7843776,"w":"https://www.cleardent.es/clinica-dental/sevilla/utrera/"},{"n":"Talavera de la Reina","c":"Talavera de la Reina","p":"Toledo","a":"Calle San Isidro, 1","t":"925 94 16 14","lat":39.9621818,"lng":-4.8271576,"w":"https://www.cleardent.es/clinica-dental/toledo/talavera-de-la-reina/"}];
+
+  var GEO_CENTROID = {"Illes Balears":{"lon":2.667573812775334,"lat":39.409578324889864},"Asturias":{"lon":-6.25134581869604,"lat":43.55092689133677},"A Coruña":{"lon":-8.793267164581117,"lat":43.03065435715811},"Girona":{"lon":3.1271053235435664,"lat":42.050239706307046},"Las Palmas":{"lon":-13.966023434554968,"lat":28.9732795379581},"Pontevedra":{"lon":-8.848219659397698,"lat":42.328373004153846},"Santa Cruz De Tenerife":{"lon":-17.045224220611228,"lat":28.3549345309561},"Cantabria":{"lon":-3.8102367133333326,"lat":43.37109867777785},"Málaga":{"lon":-4.759461444444441,"lat":36.87742306666668},"Almería":{"lon":-1.8945748559999998,"lat":37.225095922},"Murcia":{"lon":-0.9119303940455342,"lat":37.73647857267951},"Albacete":{"lon":-1.9013693888888898,"lat":38.82609066666667},"Ávila":{"lon":-4.942746243243245,"lat":40.55873891891892},"Araba/Álava":{"lon":-2.8057730733944957,"lat":42.8370353853211},"Badajoz":{"lon":-6.072088752631581,"lat":38.80300794210525},"Alacant/Alicante":{"lon":-0.35715096568627436,"lat":38.40668324019606},"Ourense":{"lon":-7.566258855855856,"lat":42.21051153153155},"Barcelona":{"lon":1.9105217638888885,"lat":41.834002006944445},"Burgos":{"lon":-3.539130941704034,"lat":42.46892157399105},"Cáceres":{"lon":-6.221653780645162,"lat":39.71525496129033},"Cádiz":{"lon":-5.781123572115381,"lat":36.44730070192307},"Castelló/Castellón":{"lon":0.2774169662921348,"lat":40.05330234831461},"Ciudad Real":{"lon":-3.900856597222222,"lat":39.054080993055564},"Jaén":{"lon":-3.499413336734694,"lat":38.03698053061223},"Córdoba":{"lon":-4.837483213836477,"lat":37.85097266037734},"Cuenca":{"lon":-2.2382011111111115,"lat":40.020650944444434},"Granada":{"lon":-3.1578317155963305,"lat":37.33184322018347},"Guadalajara":{"lon":-2.755482090361446,"lat":40.775791560240975},"Gipuzkoa/Guipúzcoa":{"lon":-2.2019032307692314,"lat":43.21751395604397},"Huelva":{"lon":-6.730741130000001,"lat":37.606351740000015},"Huesca":{"lon":-0.1428003018867925,"lat":42.207967157232716},"León":{"lon":-5.851512549019608,"lat":42.61777542483661},"Lleida":{"lon":1.1158302881355928,"lat":42.04135305084747},"La Rioja":{"lon":-2.4530011226415094,"lat":42.29818548113206},"Soria":{"lon":-2.5251113675213666,"lat":41.60103982905984},"Navarra":{"lon":-1.63299819745223,"lat":42.66869661783442},"Ceuta":{"lon":-5.038684250000001,"lat":35.671595499999995},"Lugo":{"lon":-7.392604913043479,"lat":43.34846224110672},"Madrid":{"lon":-3.790625566666665,"lat":40.38925967333334},"Palencia":{"lon":-4.411215122807019,"lat":42.385368438596466},"Salamanca":{"lon":-6.015193297709925,"lat":40.771613877862585},"Segovia":{"lon":-3.987232425287356,"lat":41.24955580459769},"Sevilla":{"lon":-5.536542159235667,"lat":37.47560324203821},"Toledo":{"lon":-4.140134182926827,"lat":39.854972957317074},"Tarragona":{"lon":0.7710941625441692,"lat":40.82542614487634},"Teruel":{"lon":-0.7872379999999998,"lat":40.68282149056603},"València/Valencia":{"lon":-0.8543828161764703,"lat":39.46008900735293},"Valladolid":{"lon":-4.93331608888889,"lat":41.763727444444434},"Bizkaia/Vizcaya":{"lon":-2.739179194736842,"lat":43.3208963},"Zamora":{"lon":-6.00952622916667,"lat":41.74748453472223},"Zaragoza":{"lon":-0.9486915952380955,"lat":41.705808033333334},"Melilla":{"lon":-2.9494774,"lat":35.2860092}};
+  var GEO_ALIAS = { "Alacant/Alicante":"Alicante","Castelló/Castellón":"Castellón","València/Valencia":"Valencia","Araba/Álava":"Álava","Bizkaia/Vizcaya":"Vizcaya","Gipuzkoa/Guipúzcoa":"Guipúzcoa" };
+  function normGeo(n) { return GEO_ALIAS[n] || n; }
+
+  var MAP_W = 1000, MAP_H = 832;
+  var KX = 0.766044443118978;
+  var MIN_X = -7.125276590693544;
+  var MIN_Y = -43.792351;
+  var SCALE = 92.71540217984216;
+  var PAD = 16;
+  function projectPoint(lon, lat) {
+    var x = lon * KX;
+    var y = -lat;
+    return {
+      x: Math.round(((x - MIN_X) * SCALE + PAD) * 10) / 10,
+      y: Math.round(((y - MIN_Y) * SCALE + PAD) * 10) / 10
+    };
+  }
+
+  var PROVINCE_PATHS = [
+  { name: "Illes Balears", d: "M904.9 371.5L897.6 376.9L895.4 376.7L897.2 380.8L904.2 377.9L902.4 382.4L898.3 383.2L899.3 387.8L907.6 392.7L913.1 389.9L914.4 387.1L922.5 391L921.8 393.3L923.7 394L920.7 401.5L917.9 402.1L917 405.4L918.4 406.6L910.4 414.5L909.2 421.8L908.2 421L906.2 426.8L893.3 435.7L886.7 426.7L874.6 426.7L871.4 422.7L870 416.2L871.8 413L866.2 408.2L863.6 407.6L863.6 409.8L857.1 411.7L855.7 418L852.5 417.1L851.1 413.5L852.7 412.3L851.1 410.8L846.2 412L844.5 410.9L846.4 409.7L843.3 408L844 404.2L860.3 393.9L874 381L878.7 380.4L886.2 375L888.5 376.1L891.7 373.6L894 375L901.5 371.3ZM967.4 359.5L968.1 363.5L970.2 361.7L969.7 365.2L971.8 361.3L975.3 368.3L975.5 366.4L979.9 367.9L978.8 371L984 379L978.9 377.1L982.6 380.1L979.8 385.3L957.8 373.3L948 374.5L949.1 367.4L946.4 367.8L945.9 366.1L948.1 362.9L963 361.5L964.5 362.8L967.1 361.2L966.5 359.3ZM785.5 449.3L787.2 451.7L790.6 451.9L789.4 454.5L791.8 457.8L789.2 458.9L788.9 461.3L785.1 462L785.2 465.4L777.6 469.3L776.5 475.9L774 476L772 472.3L770.4 473.7L768.7 471.7L765.3 473.7L763.6 472.3L764.4 466L762.9 464.2L763.9 462.7L769.4 462.9L767.9 460.9L768.5 457.4L773.1 453.5L774.3 454.6L780.5 450.7L783 451.2ZM778.6 482.4L782.9 489.2L785.3 490.7L788.1 488.9L789.2 491.6L784.9 492.5L779.4 489.5L775 493.6L774.7 486.3L775.8 484.8L777.4 486.1L778.4 481.5ZM886.2 445L888 445.7L886.7 448.6L884 448.4L883.8 445.3L886.1 446.6Z" },
+  { name: "Asturias", d: "M261.8 28.2L265.9 30.9L267.8 35.4L273.5 36.5L271.7 37L273.3 39.3L277.6 37.6L292.2 38L293.9 40.3L300.5 39.8L306.1 45.4L312.7 44.5L318.9 46.8L326.8 46.6L342.9 51.9L355.7 52.8L354.2 57.6L355.5 63.4L353.6 64.6L349.4 61.6L347.6 64.6L340.6 65.6L339.6 72.4L332.8 72.7L330.6 68.3L327.8 67.5L321.7 73.4L316.1 72.6L314.3 80L311 78.8L301.5 82.3L295.3 80.7L293.8 84.9L287.5 84.4L286.4 87.5L272.3 84.2L269.8 85.5L267.2 92.2L264.4 92.9L256.5 90.1L253.6 87.7L252.3 83.4L249 84.4L244.7 82.4L243.7 86.6L240.8 87.5L235.2 85.1L234.4 88.6L230.2 86.1L227.3 86.6L225 83.9L220.4 90.6L216.5 90.3L216.9 92.5L219.7 92.8L219.7 95L212 97.6L199.2 97.1L195.6 100.4L195.7 98.9L191.1 97.2L191.1 93.4L188.6 90.5L185.8 90.4L182.5 86.1L182.2 90.3L179.7 87.7L183.8 81.4L185.4 82.7L191.7 78L190.9 74.1L188.8 71.8L187.6 74.9L182.5 76.9L180.8 74L181.5 70.5L175.1 66.8L175.2 61.2L172.3 61.3L170.1 58.7L170.4 54.9L166.5 53.1L167.2 49.6L172.2 49.8L176 45.2L177.8 37.6L184.8 36.2L199.2 37.9L206 36.3L212.6 38.9L216.8 38.4L217.1 36.5L225.2 38.4L233.1 34.3L242.5 38L249.3 34.9L253.6 35.7L256.5 31.6L259.9 30.9Z" },
+  { name: "A Coruña", d: "M131.1 16.5L132.4 17.6L128.4 25.7L130.4 28.8L127.2 31.8L128.5 35.4L126.5 35.6L125.5 38.7L126.6 42L121.1 52.2L116.8 51.7L115.7 53.2L116.5 58.2L112.2 62.9L114 64.5L111.2 71.9L115.2 90.8L113 98.4L108.8 103.3L105.2 105.1L103.1 103.1L100.1 104.2L95.4 102.4L92.7 103.9L93.7 105.7L90.3 104.6L88.5 107L86.1 103.8L84.3 104.2L84.9 108.5L83.2 110L80.6 109L79.5 112.3L75 113.2L68.9 111.7L69 113L65.8 113.3L65.3 115.9L62.2 114.6L57.4 116.7L55.4 121.8L52 123.2L49.8 122.3L50.7 120.3L48.4 118.5L47.5 126L45.4 125.6L46.4 123.5L44.6 122.4L41.9 125.9L43.1 127.8L38.2 129.7L37.7 133.1L34.4 134.2L34.6 129.7L30.9 128.7L34.5 123.1L35 117.7L46.2 105.3L40 110L36.1 109.8L36 107.9L32.9 109.2L34 110.8L31.3 113.8L26.7 108.2L29.7 104.7L26.7 101.3L28.5 98.2L26 97.6L25.1 94.6L23.8 93.9L24 97.3L20.8 94.9L18 100.6L16.2 96.6L19.1 89.2L16 84.9L18.8 85L19.1 81.1L21.7 81.3L21.8 78.9L23.9 81.1L25.5 79.7L25.7 75.3L23.7 78.1L22.2 74.5L26.7 71.3L33.2 72.3L36.5 67.8L37.7 69.4L41.7 68.4L40.8 65L38 64L40.5 62.2L42.5 63.3L43.7 59.7L48.2 59.8L48.7 57.5L52.7 61.3L57.9 62.6L65.3 59.6L70.4 60.2L73.4 56L76 56.1L77.2 54.1L79.4 55.2L80 53.3L81.8 55.6L79.7 55.7L81.6 56.3L80.9 58L83.1 57.6L84.4 54.5L83.2 53.3L86.6 51.9L93.6 59.1L92.6 53.6L96.1 50.5L90 50.7L85.9 48.2L94.1 46.8L97.7 41.5L94.2 45.2L90.8 45.3L90.9 43.7L89.5 46.1L84.2 47L84.8 41.9L87.4 39.9L85.6 37.1L90 37.7L101.8 27.7L102.9 29.7L104.6 29.3L103 28.2L103.9 24.2L108.4 24.1L115.2 18.1L117.8 17.7L119.1 23.6L117.2 22.4L116.1 26L117.5 27.2L115.2 27.2L119.3 27.5L118.3 23.9L121.6 25L121.7 22.1L127.9 20.2Z" },
+  { name: "Girona", d: "M800.8 136.3L806.1 137.1L811 140.7L814.2 140L816.2 146.9L819.7 150L824.7 148.6L829.2 143.2L836.9 141.5L849.4 145.7L852.8 150.6L856.4 151.3L859.2 149L866.4 150.6L864.9 146.4L866.4 144.8L870.8 142.8L875.4 143.4L878.3 139.6L883.9 139.9L885.9 137.5L887.4 139L892.1 138.2L895.7 142.7L902.1 141.8L900.7 147.1L903.5 151L906 149.6L907.4 151.6L908.7 150.6L912.6 152.6L910.1 154L911 155.8L909.3 155.6L908.5 160.1L906 158.9L905.2 160.6L901.2 157.7L897.6 163.1L898.5 170.3L902.3 171.8L904.9 176.5L903.6 180.9L906.3 186.8L904.1 192.2L899.1 196.8L897 196.6L893.7 201.9L888.1 204.6L885.1 208.6L876.9 211L873.9 214.6L872.5 211.9L873.8 206.7L865.4 205.6L857.5 208.2L852.2 201.7L843.7 200L842 193L845.8 194.1L852.8 190L849.1 185.1L852.4 185L853.3 183.6L852 182.8L854.1 182L853.5 175.9L851.2 174.8L848.3 176.2L844.7 170.9L839.6 172.7L839.9 169.7L837.8 168.7L833 170.7L828.9 170L827.6 171.7L825.2 168.8L819 168.3L816.2 163.7L819.2 164.2L819 167.1L823 165.7L822.5 161.8L819.9 160.6L823.6 155.1L811.8 152.2L807.5 153.8L806.9 149.3L808.4 147.9L804.9 147.9L804.6 142.8L799.6 141.3L799.1 137ZM818.5 137.1L819.6 140.6L815.6 139.7L817.2 136.3Z" },
+  { name: "Las Palmas", d: "M185.7 755.4L187.8 757.6L188.3 765.7L184.7 781L173 785.4L168.6 791.5L161.8 790.5L162.4 788.1L167 787.8L172.8 782.8L173.6 777.1L182.4 756.5ZM126.4 784.6L128.8 797.2L126.2 803.5L120.5 807.1L116.5 806.4L110.3 798.3L110.7 793.1L115.1 789.5L115.1 785.4L124.5 787.4L125.5 785.3ZM202.1 731.5L204 733.7L201.4 743.5L191.7 747.8L189.7 751.3L186.1 748.9L188.1 746.6L188.6 741.4L194.7 736.8L199 737.1L201 732Z" },
+  { name: "Pontevedra", d: "M95.6 102.6L100.2 104.2L103.1 103.1L105.1 105.1L110.7 103.4L110 110L118.3 116.7L113.4 128.5L109 129.1L107.1 131.9L98 131.3L96.1 129.1L86.9 136.7L82.4 137L86.1 146.9L85.4 150.2L89.8 152.9L89.6 158.7L92.1 160.6L96.9 159.5L94.8 162.8L97 165.6L84.9 174.4L71.2 174.9L68.9 177.4L63.2 177.8L61.3 182L46.5 194.6L44.5 171.8L47.9 170.3L49.8 171.5L50.2 169.1L48 167.7L50 167.6L53.4 161.6L61.5 155.8L65 155.5L65 150.2L63.2 150L62.1 154.6L59.4 156.2L56.5 155.6L52.1 159.3L46.4 159L47.6 153.5L50.4 156.3L48.8 150.7L54.8 150.7L56.1 147.3L62.1 142.5L60.1 143.1L59.1 141.6L53.4 146.2L50.7 145L48.8 146.6L45.9 143.7L45.7 140L42.1 140.2L41.8 137.7L45.2 137.6L46.5 135.7L46.7 140.6L50.2 140.3L49.4 137.3L51.2 135.7L49.1 129.8L53.6 127.2L57.4 116.7L62.2 114.6L65.3 115.9L65.8 113.3L69.1 111.6L77.8 113L80.6 109L83.2 110L84.9 108.5L84.3 104.2L86.1 103.8L88.6 107L90.3 104.6L93.7 105.7L92.7 103.9Z" },
+  { name: "Santa Cruz De Tenerife", d: "M97.7 764L99 766.8L89.9 774.5L87.4 786.1L82.6 792.5L76.6 793.5L68.2 775.5L83.9 772.5L91.1 764.5L96.4 764.8ZM29.7 750.3L34.9 751.2L36.9 756.1L35.2 759.4L35.6 764.9L32.4 770.8L26 755.4L29.4 750.3ZM54.9 782.7L61 787.2L58.5 791.9L54.6 792.5L51.5 788.8L52.6 783.4L54.4 782.9ZM29.2 801.4L30.8 803.7L27.1 812L20 808.2L20.4 805.9L24.8 805.8L26.5 802.7Z" },
+  { name: "Cantabria", d: "M421.6 41.8L432.9 46.6L433 48.6L428.6 50.1L430.6 49.5L430.5 52L431.6 49L433.3 51.1L440.6 50.6L440.8 52.1L447.8 52.9L452.7 56.7L452.8 61L448.7 63.2L447.6 60.8L443.7 62.6L439.9 61.5L439.4 63.7L431.7 67.6L433.9 77.1L420.7 75.6L417.3 72.7L409.2 82L403.4 81.6L403.2 85.7L400.3 85.6L395.9 89.5L393.2 95.9L394.4 97.6L397.5 97.4L397.2 98.8L402 93.7L404.6 96L402 98.8L399.1 97.4L400.1 99.9L397.9 99.7L399.8 100.6L398.6 102.4L401.1 103.2L402.2 99.7L404.3 100.8L405.6 107L402.3 109.3L400 107.6L398.9 110.9L394.1 111.9L392.6 110.9L392.3 105.1L388.6 111.4L386.7 111.6L385.1 108.7L381.9 109L379.4 106.4L382.6 105.3L383.6 102.8L381.9 101.4L377.3 103.6L375.5 93.5L367.8 92L364.3 86.2L359.7 83.9L358.7 85.9L355.5 85.1L352.9 87.7L349.5 86.1L347.2 87.9L341.2 87.9L339.7 84.2L332.1 77.8L332.3 72.9L340.4 71.9L340.6 65.6L347.6 64.6L349.4 61.6L353.6 64.6L355.3 63.7L354.3 56.5L356.2 53L380.1 52.3L386.8 48.8L394 48.6L396.4 45.8L407.8 43.9L409.3 46.1L404.9 47.6L405.6 52.2L408.2 50.4L408.4 47.8L410.6 47.6L408.4 47L411.4 46.9Z" },
+  { name: "Ávila", d: "M320.5 259.7L331.2 266.2L334.6 265.3L336.7 261.6L341.2 261L341.9 269.1L347.2 272L349.4 277.6L352.3 279L352.8 285.5L354.8 288L353 290.1L357.5 290.3L358.9 295.8L361.9 298.8L362.7 308.9L374.3 307.2L373.1 304.6L374.6 303.7L381.1 303.7L381.1 309.8L375.1 311.8L371.9 309.4L372 315.3L369.2 318.1L370.1 324.5L368.3 327.9L369.7 329.6L362.6 329.9L360.2 338L356.8 338.4L353.7 335.9L354.9 340.4L352.1 343.8L352.3 347.4L346.1 349.2L343.7 348L342.9 341.4L338.4 343.4L335.5 342.1L335.2 345.8L326.9 351.8L326.8 355L324.7 356.4L320.6 357.3L319.6 352.9L311.5 359.1L307.3 360L306.2 357.6L297.6 356.9L295.4 352.4L297 343.1L291 344.2L288.1 348.3L283.8 349.6L278.2 347.6L272.3 340.5L269.1 340.4L273.7 335.3L272.4 328.5L276.5 324.9L281.7 323.4L280.7 326.4L284.1 328.4L285.3 324.6L288.4 324.4L291.1 315.3L284.2 317.5L284.8 313.3L285.9 312.2L286 313.7L289.7 313.9L294.3 310.1L295.5 307.5L294.1 305.4L306.3 297.3L310 292.1L309.9 287.1L313.3 283.9L312.4 279.1L315.1 275.2L311.1 270.8L310.9 266.3L312.7 262.3L317.3 262Z" },
+  { name: "Álava", d: "M461.6 69.4L467.4 73.6L468.1 76.8L465.3 80.2L471.1 85.2L489.6 87.6L487.6 82.6L495.7 81.3L497.3 85.3L492.2 88.6L493.3 92.8L509.4 94.1L517.4 100L517.9 104.7L514.6 109.4L516 112.8L511.6 115.1L514.1 121.4L507.4 123.4L507.9 121.8L505 120.7L499.1 125L502.4 129.6L504.7 125.9L506.4 126.6L506.7 134.2L504.5 134.8L504.7 136.8L498 136.7L498.3 134L496.9 137.3L494.2 136.4L492.2 138.3L491.6 135.5L488.6 137.4L486.6 133.4L484.5 134.2L486.2 127.1L482 124.5L476 130.7L474.9 128.3L476.4 125.4L474.8 125.8L474.7 123.8L471 121.5L470.5 117.9L464.9 116.9L460 111.2L453 112L454.8 109L452.2 107.6L455.4 99.7L452 102.7L450 101.6L447.8 104.4L449 105.5L443.5 101L447.6 94.1L453.3 95.5L452.9 97.2L457 98.8L462.2 97.9L464.9 95.1L460.4 91.9L466.7 89.6L464.6 90.2L464.5 88.3L461.2 87.6L461.5 85.1L457.2 89.3L450.9 87.4L453.5 86.7L452.3 82.6L454 80.4L450.6 78.3L452.1 75.2L453.7 74.3L455.6 76.2L461.6 74.5L462.4 70.7L460.7 70ZM475.2 108.4L472.9 113.6L478.9 117.4L480 120.4L487.8 119.8L489.5 122.1L497.8 122.3L497.5 118.8L493.5 120.2L491.3 117.7L494.9 111.5L492.7 112.6L491.8 110.7L488.9 111.3L482.6 108.5L475.9 109.4Z" },
+  { name: "Badajoz", d: "M344.4 420L342.3 429.9L338.5 430.6L342.2 440.9L346.4 445L335 441.8L330.4 451L333.8 454.4L333.4 456L330 457.3L324.2 454.9L327.3 464.3L333.4 466L332.3 471.2L327.5 470.8L322.2 484.5L314.5 487.4L308.4 486.3L309.6 490L308.4 491.9L306.7 491.1L299.6 499.5L295.1 498.9L291.8 505.5L281.2 512.9L280.6 522.5L284.1 528.6L284.5 533.8L283.2 538.1L280 540.8L276.5 540.2L272.2 545.3L269.3 545L269 540.7L272.1 539.2L271.4 537.3L272.9 538.4L269.8 534.7L259.4 538.4L255.7 543.3L256.9 547.2L253.8 553.5L242.3 554.7L237.7 558.5L236.2 556.6L228.9 555L225.4 552.4L224.4 548.5L221.1 547.6L218.3 547.9L216.6 552.3L209.1 551.1L209.2 548.1L206.3 544L198.4 544.7L193.1 542.7L194 536.5L189.7 536.4L184 532.6L173.4 537.3L159.5 514.1L155.6 512.7L158.5 508.7L156.5 508.7L157.9 502.5L162.1 495.2L160.3 493.8L161.3 485.7L176.7 472.9L175.8 468.9L182.9 458.1L179.7 451.1L176.7 449.3L171.9 451.1L169.2 450.2L169.9 444.5L162.3 441L161.9 436.8L168.4 431.2L166.8 429.6L168.5 426.3L174.2 425L172.2 428.2L174 431.6L176.3 430L178.8 424.3L174.7 421.9L175.9 419.8L187.7 424.8L193.5 424.2L193.9 428.4L197.4 430.5L193.6 438.1L196 442.9L202.1 443.9L205.5 442.1L212.1 445.9L212.1 443.5L223.6 445.2L227.5 443L228.3 450L234.1 452L236.1 455.1L239.3 455.2L240.4 457.4L249.2 448.4L249.8 455.5L254.6 450.3L255.8 452.6L262.3 450.1L263.9 446.9L267.9 448.1L272.7 452.7L278.6 451L280.6 446.3L277.9 442.9L282.4 440.3L284 442.6L285 440.9L288.8 445.6L294.2 444.2L296.7 438.7L297.4 429.4L303.9 432.3L312.7 429.1L313.4 424.4L315.1 424.1L317.7 426.7L326 423.6L330.7 426.2L337.5 423.5L343.5 418.4Z" },
+  { name: "Alicante", d: "M665.3 471.1L666.1 473.5L671.6 470.9L674.2 473.6L674 470.8L685.6 474.4L690.7 478.5L690.1 481.3L692.6 482.2L693.2 484.7L689.6 486.2L687.2 490.1L683.6 490.7L682.6 494.5L675.5 494.9L669.7 504.5L665.8 503.4L650 512L647.9 520.4L645.1 519.4L640.4 522.8L640.1 534.7L634.3 535.6L631.8 539.2L630.6 553L623.4 562.3L622.5 567.2L617.5 565.5L604 546L603 540.3L607.9 527.5L606.4 523.3L599.6 520.9L598.9 512.4L604.6 507L605.5 499.9L603.7 492.3L608.3 492.1L611.6 488.5L608.3 481.2L610.6 480.4L615.4 481.6L617.3 485.1L624.4 482.6L626.4 485L630.9 485.5L632.7 489.4L640.6 484.2L639 481.9L636.4 483L634.6 479.2L643.8 478.2L654.5 471.3L660.2 473.9Z" },
+  { name: "Ourense", d: "M114.1 129.6L116.3 132L113.8 133.5L115.4 133.8L114.6 135L122.5 137.7L125.1 136.4L126.3 137.7L123.4 139L128.8 140.2L135.5 146.5L138.5 144.6L143.4 146.3L151.1 141.8L157.7 142.4L163.8 146.3L163.1 148.9L165.1 152L168.9 141.7L172.4 139.6L174 135.1L181 136.4L182.3 134.2L184.8 134L192 136.7L192.6 142.6L190.6 144.6L198.3 148.9L196 158.3L193.4 160.1L194.6 162.2L188.1 161.8L177.1 175.3L178.6 177.3L181.2 177.1L182.2 179.6L179 186.8L174.2 186.8L169.5 183L166.8 184.1L165.4 193.3L157 196.7L153.4 195.9L149.1 200L147.3 194.7L143.8 194.3L142.4 196.8L135.9 198L137.8 193.1L133 193.2L129.7 190.7L119.4 193.2L117.2 196.1L116.6 189.2L115.1 188.9L114 193.4L109.8 194L107.5 198L101.8 199.9L96.7 199L96.3 193.4L94.2 193.9L93 190.2L96.8 183.8L102.4 180.6L102.4 177.8L100 174.6L95.1 175.3L94.3 167.9L97 165.6L94.8 162.8L96.9 159.5L92.1 160.6L89.6 158.7L89.8 152.9L85.4 150.2L86.1 146.9L82.4 137L86.9 136.7L96.1 129.1L98 131.3L107.1 131.9L109 129.1L113.5 128.5Z" },
+  { name: "Burgos", d: "M445.9 71.3L447.6 73.7L453.5 74.1L450.6 78.3L454 80.4L452.3 82.6L453.5 86.7L450.9 87.4L459.3 89.1L464.9 95.1L462.2 97.9L457 98.8L452.9 97.2L453.3 95.5L447.6 94.1L443.5 101L449 105.5L447.8 104.4L450 101.6L452 102.7L455.4 99.7L452.2 107.6L454.8 109L453 112L460 111.2L464.9 116.9L470.5 117.9L470.9 121.4L473.6 123L469.5 124.7L467.4 122.9L457.6 122.8L459.3 127.6L454 131.9L458.4 133.1L456.8 136.9L460.3 140.9L459.5 147.8L458 143.6L456.4 143.5L456.1 146.4L459 149.1L455.8 149.6L457.3 159.4L454.4 163.9L461.1 174.2L468.4 174.1L469.7 180.1L462.4 192.7L456.6 193.2L451.4 201.4L443.4 193L444 203.6L438.4 206.5L438.1 210.6L435.6 210.9L430.9 220.2L426 218.1L422.9 222.5L416.6 222.4L411.8 226.9L411 233.1L408.9 232.2L409.1 225L406.5 226.3L407.6 229.8L405 230.3L400 223.7L390 217.4L390.7 210.7L387.1 206.9L389.8 201.7L386.1 197.9L386.2 194.2L393.9 191.4L393.9 188.6L400.2 186.1L400.4 183L390.2 186.4L394.6 179.1L393.8 177.4L386.9 178.8L385.2 174.1L388.5 172.8L378 169.8L379.1 165.8L376.1 162.9L373.2 146.4L369 145.9L370 139.6L375.3 139.9L375 136.3L372.2 134.7L372.8 131.7L371 130.7L373.3 128.3L371.7 126.1L373.8 124.9L371.7 118.1L373.6 116.8L374.3 118.4L382.2 112.4L384.7 114.1L386.5 111.3L395 111.8L398.9 110.9L400 107.6L402.2 109.3L405.1 108.1L404.8 101.4L402.2 99.7L401 103.2L398.6 102.4L399.8 100.6L397.9 99.7L400.1 99.9L399.1 97.4L401.9 98.8L404.3 97.1L403.9 95L400.5 94.2L397.2 98.8L397.5 97.4L394.3 97.6L393.4 95L396.4 88.9L400.3 85.6L403.1 85.8L404.5 83.5L403.4 81.6L409.2 82L417.3 72.7L420.7 75.6L432.7 77.3ZM386.2 167.3L384.7 168.9L388.1 170L387.9 167ZM475.8 109.1L482.6 108.5L488.9 111.3L491.8 110.7L492.7 112.6L494.9 111.5L491.3 117.7L493.5 120.2L497.5 118.8L497.8 122.3L489.5 122.1L487.8 119.8L480 120.4L478.9 117.4L472.9 113.6L475.2 108.4Z" },
+  { name: "Cáceres", d: "M234.1 322.5L240 327.2L242.2 326.7L241.3 328.6L245.9 330.8L243 334.5L249.3 336.1L250.1 339.3L254.9 341.6L256.4 341.9L258.7 337.3L264.7 334.8L265.2 341L272.3 340.5L277.9 347.4L282.6 349.3L288.1 348.3L291 344.2L297.1 343.1L295.4 352.4L297.6 356.9L295.3 358.3L295.6 369.2L292.7 378.9L298.5 377.6L301.3 380.2L299.3 383.9L299.6 389.9L303.4 390.6L306.8 386.4L309.6 386.2L309.1 390.7L311.7 394L306.8 405L324.9 423.7L322.6 425.9L317.7 426.7L313.4 424.4L312.7 429.1L303.9 432.3L297.4 429.4L296.7 438.7L294.2 444.2L288.8 445.6L285 440.9L284 442.6L282.4 440.3L277.9 442.9L280.6 446.3L278.6 451L272.7 452.7L267.9 448.1L263.9 446.9L262.3 450.1L255.8 452.6L254.6 450.3L249.8 455.5L249.2 448.4L240.4 457.4L239.3 455.2L236.1 455.1L234.1 452L228.3 450L227.5 443L223.6 445.2L212.1 443.5L212.1 445.9L205.5 442.1L202.1 443.9L196 442.9L193.6 438.1L197.4 430.5L193.9 428.4L193.3 424.1L187.7 424.8L175.9 419.8L174.7 421.9L178.8 424.3L176.2 430.2L173.8 431.5L172.1 427.5L175 425.8L170.5 425L168 426.8L166.8 429.7L168.7 430.5L165 435.7L157.6 429.1L156.5 424.9L158.4 417.8L152.4 414.7L151.7 411.2L148.9 410.8L144.2 406L140.8 398.8L155.8 400.9L161.7 398.5L168.9 399.8L178.4 398.1L181.1 388.7L180.4 385.2L186.3 379.5L185.9 375.1L189.1 366.5L183.6 357.1L178.6 355.8L178.6 346.6L189 342.5L191.2 344.7L196.8 345.5L199.4 342.7L201.5 345.1L202.8 343.2L208.8 342.5L212.4 335.4L219.3 333L220.7 330.6L224.1 330.3L226 326.6L230.9 325.1Z" },
+  { name: "Castellón", d: "M664.9 294.5L672 300.2L677.7 300.1L679.6 303.5L684.6 300.2L692.7 299.6L693.4 302.6L697.4 303.8L695.6 306.5L696.4 309.2L705.2 311.8L708.2 314L707.7 316.9L713.1 319.8L706.3 330.5L705.6 334.5L695.4 348.3L690.2 351.8L687.1 359.9L680.2 364.3L676.3 375.5L670.3 381.1L663.3 393.4L657.9 391.2L653.3 386L649.8 386.2L644.2 394.1L638.9 386.5L635.6 388.6L634.8 391.6L630.3 390.4L630 382.8L627.5 381.3L624.7 384.8L616.5 372.5L617.1 369.8L621.4 367.8L623.1 363.3L628.1 363.5L633 361.1L632 358.1L635.5 354.9L638 344.3L641.5 346.4L646.2 345L649.4 343.1L649 339.2L656.6 333.7L652 326.4L657.3 323.7L655.2 319.8L655.8 311L650.3 310.7L649.6 306L653.3 304.5L654.8 306.5L659.9 303.5L662.6 294.9Z" },
+  { name: "Ciudad Real", d: "M382.7 407.8L389.6 407L390.4 411.9L388.3 412L387.7 417.9L384.1 418L382 426.7L385.1 428.7L387.3 426.5L394.5 427.7L394.9 432.6L402.7 436.4L407.4 433.2L412.2 435.3L415.2 432.7L425.7 432.1L434.4 422.8L441.6 423.3L442.7 416.7L450.4 416.4L452.4 414.3L458.6 418.6L463.6 419.4L468.7 416.7L472.8 424.1L470.9 426.3L471.9 427.8L475.3 427.6L479.5 423.7L483.3 435.6L474.7 447.9L477.4 453L477.1 457.7L471.9 466L475.2 469L478.3 469.1L480.5 471.5L482.6 480.6L485.1 480.5L489 484.1L487.1 492.8L482.9 495.9L480.3 494.8L481.5 502.3L479.2 505.8L472 511.1L466.1 509.3L463.4 515.2L458.9 508.7L453.7 512.4L440.4 508.3L436.9 509L436.8 512.3L431.5 515.9L426 515.2L425.1 511.7L422.1 511.2L421.1 516.1L407.8 513.6L404.6 514.8L402.9 518.3L398.6 518.8L374.2 515.8L372.1 521.3L360.4 515.9L356.1 510L350.4 507.9L342.3 500L331.4 496.1L330.2 489.4L321.2 488.6L318.2 485.4L322.2 484.5L325.5 473.8L327.5 470.8L332.3 471.2L333.5 466.3L327.3 464.3L324.2 454.9L330 457.3L333.4 456L333.8 454.4L330.4 451L335 441.8L346.5 444.9L342.2 440.9L338.5 430.6L342.3 429.9L345 421L343.7 418.6L348.6 418.2L348.6 415.4L352.2 414.2L355.2 408.3L358.3 410.4L356.2 411.9L359.7 416L361.1 411.8L375.3 416L378.8 414.4L381.3 406.9ZM338 412.5L339.9 418L337.6 423.4L330.7 426.2L325.7 423.7L331.2 408.8Z" },
+  { name: "Cuenca", d: "M523.8 306.6L528.1 307.7L535.6 313.3L537.1 310.9L540 312.7L545 328.3L550.4 331.3L556 337.8L553.8 339.5L554.5 341.9L556.6 338.9L567.2 349.9L574.4 349.3L573.2 355.5L576.6 358.2L578.8 366.1L587.9 368.1L593.9 366.7L595.5 370.2L590.8 372.8L591.4 380.7L586 391.8L587 395.5L583.7 398.1L579.4 396.4L575.9 399.6L572.8 406.8L568.6 409.3L570.1 413.9L568 418.2L569.7 421.6L553.1 430.5L550.9 434.3L542.6 432.1L535.3 433.1L533.1 427.7L527.8 427L531 435.6L522.6 434.3L514.1 439.3L511.8 434L509.7 434.5L508 438.7L498.3 428.6L495.6 430.3L490.6 428.8L481.9 430.8L478.2 423.4L475.6 427.4L471.9 427.8L470.9 426.3L472.8 424.1L468.4 418.2L470.1 400.8L463.7 393.7L458.1 381L454.5 379.2L456.7 368.8L453.4 369L452.1 361.6L455.2 361.9L459.2 359.2L456.6 353.3L459 352L462.4 353.5L463.2 348.2L469.8 353L473.3 349.1L476.2 348.6L477.6 343.1L476.6 333.9L479.2 326.3L483.2 330.8L483.6 328.7L485.9 330.7L484.6 328.2L486.8 326L492.9 325.9L498 328.3L498.7 326L495.9 323.6L497.1 317.1L499.3 320.4L504.3 317.5L505.3 318.9L507.6 317.2L504.9 313.5L506.2 310.7L510.2 314.8L513.4 314.5L515.1 307.8L519.4 310.2L522.6 309.2Z" },
+  { name: "Guadalajara", d: "M470.6 244.7L472.9 245.5L473 249.4L476.2 251.1L479.5 251.7L480.5 249.5L483.7 249.3L484.2 251.5L488.7 252.6L489.9 254.9L492.7 254.1L490.4 257.5L493.6 258.3L492.3 261L493.7 262L496.5 259.8L501.2 267.7L504.8 269.5L509.3 266.9L511.6 269.7L515.9 268.6L518.1 265.9L522.1 267.1L525.2 263.9L530.6 268.4L531.2 260.7L537.5 258.9L539.4 262L548.5 266.6L561.7 280.1L561.5 286L566.9 291.9L567.3 297.1L565.7 299L567.6 303.9L565.5 310.6L566.9 312.4L563.1 315.5L557.4 312.8L556.4 322.5L552.4 324.7L548.3 330.7L545 328.3L540.5 313.6L537.3 310.9L535.6 313.3L523.4 306.5L522.6 309.2L519.4 310.2L515.1 307.8L513.8 314L510.9 315L506.2 310.7L504.9 313.5L507.3 317.5L505.3 318.9L504.3 317.5L499.3 320.4L497.1 317.1L495.9 323.6L498.7 326L498 328.3L492.9 325.9L486.8 326L484.6 328.2L485.9 330.7L483.6 328.7L483.2 330.8L479.1 326.4L476.6 333.9L477.6 343.1L476.1 348.8L473.3 349.1L469.8 353L463.2 348.2L462.4 353.5L458.7 353L455.8 341.2L451.2 345.9L449.7 344.6L454.3 330L452.5 326.9L449.4 326.6L449.3 319.9L445.8 317.1L442.4 317.8L443.4 314.9L439.5 309.6L441.1 306.9L439 308.5L435.6 303.4L434.8 305.5L430.3 303.6L432.7 300.1L432 297L427.2 294.5L430 287.5L432.3 286.5L430.8 283.5L435.5 274.9L432.4 270.9L433.3 267.2L428.8 266.2L425.2 259.6L430.4 257.9L432 254.9L435 255.1L434.1 249.6L439.7 251.4L444 249.4L445.5 250.9L449.4 246.7L459.2 249.5L467.1 247.8L467.7 245.8Z" },
+  { name: "Guipúzcoa", d: "M549.4 52.8L549.5 56.7L553.2 58.9L553.8 62.2L550 62.9L549.1 66.6L544.5 69.8L544 68.1L543 70.3L540.7 68.6L541.5 76.9L533 83.4L531.9 91.2L527.8 92L525.4 95.1L519.6 94.1L517.5 99.2L514 98.5L509.4 94.1L496.6 91.9L495.9 94.1L491.8 91.1L492.2 88.6L497.3 85.3L495.7 81.6L499 80.5L499.2 69.1L503.6 66.9L504.9 64.7L503.4 62.1L505.3 59.4L509.5 61.8L520.2 60.6L521.1 62.4L525.3 62.8L537.2 58.1L540 58.7L544.2 54.9Z" },
+  { name: "Huelva", d: "M184.6 534.1L194 536.5L192.5 541.9L196.6 544.4L206.3 544L209.2 548.1L209 551.1L216.6 552.3L218.9 547.5L224.4 548.5L225.8 552.8L236.2 556.6L238.4 561.4L240.2 560.4L241.6 561.9L238.8 565.8L241.8 570L241 572.7L236.1 571.1L234.7 577.2L232.5 576.9L232.6 575L228.4 574.8L216.7 578.5L214.9 583.8L212.4 585.4L212.9 588.7L222.4 589.1L222.6 594.4L228.7 605.6L225.2 607.5L225.9 611.8L223.2 614.5L226.8 618L224.9 623.7L226.2 634.4L223 638.7L225.3 646.8L223.6 651.8L227 655.1L225.9 664.4L222.3 663.6L218.6 654.3L213.4 647.9L185.4 629.4L191.4 635.7L184.8 630.5L175.2 626.2L160.2 627L152.7 629.9L150.5 628.8L146.5 600.6L142.3 594.4L143.7 589.7L147.9 584.1L149.5 575.4L156.4 570.1L159.3 565.2L161.8 557.3L160.8 554.9L165.1 552.7L170 553L172.4 549L175.2 551.4L179.3 550.9L182.9 538.9L181.7 537.6Z" },
+  { name: "Huesca", d: "M623.5 96.7L625.2 96.9L625.7 100L628.4 100.2L633.9 105L634 107.8L636.2 107.4L636.3 109.8L640.7 105.5L645.3 108.4L648.6 108.1L654.4 103.4L663.2 109.2L665.3 108.2L669.1 115.4L671.8 115.6L672.6 118L676.6 118.6L689.1 113.8L695.1 115.8L697.6 119.8L702.2 115L706.6 118.2L719 116.8L723.5 118.1L726.9 124.6L731.1 125.5L729.9 132.6L727.8 133.5L729.2 135.3L725.7 137L729.6 146.5L728 148.3L731.4 149.7L729.2 150.9L730.9 152.3L726.5 164.6L726.3 172.3L722.2 183.8L720.5 183.2L716.5 187.9L719.8 189.7L719.7 194.1L710.9 200.6L709.9 204L704.9 204.6L699.9 211.7L701.5 219.3L707.1 219L708.4 224.6L704.8 229.4L700.9 230L700.5 237.1L693.7 235.2L692.2 237.5L688.2 237.2L683.3 242.4L677.3 241.5L675 238.1L676.1 242.6L673.1 241.5L669.2 229.9L665.5 225.3L665.5 220.2L662 219.1L659.2 221.8L651.1 216L650 211.1L639.8 207.3L641.1 204.3L639.9 197.3L633.8 193L634.3 191.5L629.9 186.1L621.4 186.1L613.8 181.8L618.9 173.6L620.3 177.1L622.4 175.9L622.7 157.7L624.9 154.6L624.3 147.9L621.4 145.9L619.3 157.1L614.3 156.1L613.4 159.9L611.4 158.3L616.7 146.5L618.7 145.5L612.4 141.9L614.3 139.4L613.2 134.9L610.3 135.3L613.1 131.3L610.3 129.1L612.4 126.6L610.7 121.3L614.1 118.4L611.1 117.2L612.7 111.7L616.4 109.3L615.8 103.7L618.5 101.6L618.4 98.7Z" },
+  { name: "León", d: "M329.1 67.4L332.9 71.9L333.4 79.9L340.4 85.1L331 102.4L328.7 102.2L328.9 109.4L326.1 112L327.5 115.4L330.6 116.5L328.6 120L327.5 130.7L329.5 132.4L328.6 140.4L326.9 141.7L328.4 146.4L323.5 147.5L322.6 150.9L325.7 150.5L324.8 154.6L318.8 154.6L317.7 158.3L313.5 153.3L308.5 157.7L304.7 156.8L304.4 162.3L301.1 160.9L299.7 163.7L293.9 161.6L294.8 178.3L290.3 179.3L284.1 172.5L279.8 177.5L279.7 175L276.4 174.6L277.5 172.3L274.1 169L272.7 169.4L273.4 171L268.7 171.7L266.3 169.6L261.5 171.9L257.8 167.7L253.8 170.7L247 167.4L239.1 166.8L235.4 168.4L229.6 165.7L228.3 163L215.1 165.3L213.1 163.3L199.4 162.4L194.8 158.7L197.8 154.5L198.3 148.9L190.6 144.6L192.6 142.6L192 136.6L184.3 133.9L181 136.4L174 135.1L174.5 130.8L177.1 128L176.1 123.5L179.1 122.6L176.2 117.8L181.4 115L182.3 112.2L184 113.5L188.9 109.2L190.8 105.8L188.6 101.2L192.6 101.4L190.3 97.4L195.3 98.6L195.7 100.4L201.5 96.7L215.7 96.9L219.7 95L219.7 92.8L216.9 92.5L216.5 90.3L220.4 90.6L225 83.9L227.3 86.6L230.2 86.1L234.4 88.6L235.2 85.1L240.8 87.5L243.6 86.6L244.7 82.4L249 84.4L252.3 83.4L253.6 87.7L256.5 90.1L264.4 92.9L267.2 92.2L269.8 85.5L272.3 84.2L286.4 87.5L287.5 84.4L293.8 84.9L295.3 80.7L301.5 82.3L311 78.8L314.3 80L316.1 72.6L321.7 73.4L324.1 69.8Z" },
+  { name: "Lleida", d: "M727.5 102.6L737.4 105.5L742.4 109L744.8 107.5L746.5 109.2L753.2 109.1L759.4 116.5L763.9 114.7L773 115.4L779.1 126.3L777 132.4L779.6 132.1L780.9 134.9L777.4 137.3L779.2 141.3L786.8 142.1L787.5 139.7L794.3 138.8L795.2 135.4L797.6 136.8L799.2 135.4L799.6 141.3L804.6 142.8L804.9 147.9L808.4 147.9L806.9 149.3L807.5 153.8L795.3 156.1L797.7 160L796 163.1L800.1 165.8L797.3 169.6L798.9 173.7L796.7 174.1L795.2 178.1L797.3 179.5L794.9 181.9L794.2 180.2L793.7 182.2L797.2 183.6L797.2 180.8L798.7 183.6L796.1 185.2L793.8 184.1L794 188.8L788.1 193.3L791.6 193.2L792.4 195.3L789.8 202.8L785.3 205.1L783.5 201.8L780.4 202.9L781.1 200.6L777.3 201.2L776.3 205.8L777.8 207L774.8 209.5L779.5 215.9L773.2 218L776.5 219.2L776.3 223.1L763.3 222.1L759.3 225.3L760.5 229.6L755.6 231.6L750.5 228.4L753 232.4L743.8 242.5L737.9 243.5L736.6 241.3L734.8 244.4L730.8 243.9L721.2 247.9L716 244.6L712.4 248L709.4 243.8L707.5 245.2L707.4 249.3L704 249L701.4 244.4L703.1 242.1L699.4 238.3L701.9 233L700.9 230L704.8 229.4L708.4 224.6L707.1 219L701.5 219.3L702 216.3L699.8 212L704.9 204.6L709.9 204L710.9 200.6L719.7 194.1L719.8 189.7L716.5 187.9L723.7 181L727.3 167L726.5 164.6L730.9 152.3L729.2 150.9L731.4 149.7L728 148.3L729.6 146.5L725.7 137L729.2 135.3L727.8 133.5L729.9 132.6L731.1 125.5L726.3 123.9L723.5 118.3L724.9 115.1L722.3 112.3L724 110.3L722.4 109.6L724.2 107.8L723.5 104.4Z" },
+  { name: "La Rioja", d: "M463.7 122.6L469.5 124.7L474 123.2L474.8 125.8L476.4 125.4L474.9 128.3L476.1 130.7L479.3 128.3L480.3 124.4L482 124.5L486.2 127.1L484.5 134.2L486.6 133.4L488.6 137.4L491.6 135.5L492.2 138.3L494.2 136.4L496.9 137.3L498.4 134L498 136.7L505.1 136.7L510 140.3L514.1 138.8L522.1 144.4L526.6 143.2L529 148L528.2 150L533.4 147.9L536.6 149.4L543.8 155.4L543.6 158.8L557.3 164.4L555.8 166.1L557.3 168.1L554.5 169.8L553.1 168.3L546.5 168.4L541 176.7L541.6 179.4L545.4 181.4L544.8 185.3L536.7 189.7L532.6 186.5L532 187.8L526.5 185.8L526.9 181.9L523.1 176L525.5 174.7L525.1 172.8L515.4 174L514.5 170L512 168.7L498 171.6L498 175.8L493.4 182.5L481.5 181.3L480.8 179.1L484.4 172.6L482.4 170.6L478.4 172.1L477.9 177.8L471.4 181.2L468.4 174.1L461.1 174.2L454.4 163.7L457.3 159.4L455.8 149.6L459 149.1L456.1 146.4L456.4 143.5L458 143.6L459.5 147.8L460.3 140.9L456.8 136.9L458.4 133.1L454 131.9L459.3 127.6L457.6 122.8Z" },
+  { name: "Soria", d: "M510.1 168.7L514.5 170L515.4 174L525.5 173.2L523.1 176L526.9 181.9L526.8 186.1L532 187.8L532.6 186.5L536.7 189.7L544.8 185.3L544.7 190.6L547.5 195.8L545 201.8L550.5 207.7L548.3 213.3L544.6 213.6L540 219.4L535.1 219.2L536.9 224.3L535.9 229.8L539 237.1L532.5 239.3L532 235.3L527.4 233.6L526.3 239.5L523 241.9L522.2 248.2L524.2 257.8L530.9 261.3L530.6 268.4L525.2 263.9L522.1 267.1L518.1 265.9L515.9 268.6L511.6 269.7L509.3 266.9L504.8 269.5L501.2 267.7L496.5 259.8L493.7 262L492.3 261L493.6 258.3L490.4 257.5L492.7 254.1L489.9 254.9L488.7 252.6L484.2 251.5L483.7 249.3L480.5 249.5L479.5 251.7L476.2 251.1L473 249.4L471.5 244.7L467.7 245.8L467.1 247.8L459.2 249.5L448.8 246.7L438.7 238.3L440.1 232.2L434.2 230.8L431.5 225.4L429.5 226.6L425.3 223.7L425.1 218.5L430.9 220.3L435.6 210.9L438.1 210.6L438.4 206.5L444 203.6L443.4 193L451.4 201.4L456.6 193.2L462.4 192.7L463.6 188.5L465.6 188.7L468.4 180.5L471.8 181.3L477.9 177.8L479.5 170.7L484.4 172.6L480.8 179.2L481.6 181.4L493.4 182.5L498 175.8L498 171.6L500.2 172.3L503.3 169.5Z" },
+  { name: "Navarra", d: "M559.3 60.7L561.2 61.1L562.4 66.1L564.7 66.3L565.5 62.7L567.6 62.1L578.3 65.9L578.5 71.9L576.2 77.6L572 81.4L574.3 85.2L580.4 86.9L582 79.5L586.4 78.5L583.7 82.9L586.9 85.4L590.5 84.7L595.5 88.8L597.5 87.2L609.5 93.8L622.9 92.4L625.2 96.7L618.4 98.7L618.5 101.6L615.8 103.7L615.1 111.5L612.7 111.7L609.2 116.2L603.6 117.3L601.9 122.6L594.8 122.1L594.4 125.5L592.8 125.6L594.4 126.6L591.3 128.6L591.2 131.2L586.4 131.3L584.8 134.8L586.2 137.5L581.3 142.9L580 147.1L582.2 149.2L577.3 155.2L575.9 162.5L577.8 165.4L577.3 170.5L580.6 175.4L583.5 175.5L583.9 178.2L575.9 190.2L565.9 190.2L559.1 185.4L554.8 186.2L551.1 182.6L546.4 182.6L541.6 179.4L541.5 175.3L546.5 168.4L553.1 168.3L554.5 169.8L557.3 168.1L555.8 166.1L557.3 164.5L543.6 158.8L543.8 155.4L534.9 148.5L528.2 150L529 148L526.6 143.2L522.1 144.4L514.1 138.8L510.1 140.3L506.2 138.4L504.5 134.9L506.7 134.2L506.4 126.6L504.7 125.9L502.4 129.6L499.1 125.6L505 120.7L507.9 121.8L507.4 123.4L514.1 121.4L511.6 115.1L516 112.8L514.6 109.4L518 104.3L516.6 99.4L517.8 96.3L519.6 94.1L526.2 94.8L527.8 92L531.9 91.2L533 83.4L541.5 76.9L540.7 68.6L543 70.3L544 68.1L544.5 69.8L549.1 66.6L550 62.9Z" },
+  { name: "Ceuta", d: "M297 750.4L294.6 746.2L299 748.7L301.7 747.7Z" },
+  { name: "Lugo", d: "M134.3 19.7L137.1 28L137.9 23.5L142.2 21.2L142.9 22.8L146.2 22.3L145.5 23.7L147.6 25.2L154.1 27.2L158.5 34.5L162 36.1L160.2 37.3L161.3 38.8L162.7 36.7L176.8 38.3L176 45.2L172.2 49.8L167.2 49.6L166.5 53.1L170.4 54.9L170.1 58.7L172.3 61.3L175.2 61.2L175.1 66.8L181.5 70.5L180.8 74L182.5 76.9L187.6 74.9L188.8 71.8L192.1 76.2L188.6 81L185.4 82.7L183.8 81.4L179.7 87.7L182.2 90.3L182.5 86.1L185.8 90.4L189.1 91L192.6 101.4L188.6 101.2L190.8 105.8L188.9 109.2L184 113.5L182.3 112.2L181.4 115L176.2 117.8L179.1 122.6L176.1 123.5L177.1 128L174.5 130.8L174 136.1L168.9 141.7L165.1 152L163.1 148.9L163.8 146.3L157.8 142.4L151.1 141.8L143.4 146.3L138.5 144.6L135.7 146.6L128.8 140.2L123.4 139L126.3 137.7L125.1 136.4L122.4 137.6L113.8 133.5L116.3 132.3L113.3 128.5L118.3 116.7L110 110L111.5 104.3L108.4 103.5L115 94L112.5 83.2L114.3 81.3L111.2 71.9L114 64.5L112.2 62.9L116.5 58.2L115.6 53.3L116.8 51.7L121 52.3L126.6 42L125.5 38.7L126.3 35.9L128.5 35.4L127.2 31.8L130.4 28.8L128.4 25.8L129.8 21.3Z" },
+  { name: "Palencia", d: "M360.1 84.2L364.3 86.2L367.8 92L375.5 93.5L376.6 102.7L378.3 103.9L382.3 101.6L383.6 103L382.6 105.3L381.2 104.6L379.5 106.9L381.9 109L385.5 108.8L386.7 111.2L384.7 114.1L382.2 112.4L374.3 118.4L373.6 116.8L371.7 118.1L373.8 124.9L371.7 126.1L373.3 128.3L371 130.7L372.8 131.7L372.2 134.7L375 136.3L375.3 139.9L370 139.6L368.7 143.2L369.7 147L373.2 146.4L376.1 162.9L379.1 165.8L378 169.8L388.5 172.8L385.2 174.1L386.9 178.8L393.8 177.5L394.6 179.1L390.2 186.4L400.2 182.5L400.2 186.1L393.9 188.6L393.9 191.4L386.2 194.2L386.1 197.9L389.8 201.7L389.6 203.7L385.4 203.1L383.8 200L377.3 200.8L375.8 199.4L370 204.1L364.9 201.9L360.3 204.5L356.9 203.4L357.9 198.9L359.8 198.8L358.9 196.7L352.3 199.6L345 191.4L336.5 199.1L330.8 188.5L326.6 190.1L325.1 188.3L322.7 190.5L321.2 187.9L326 180.5L325.2 177.1L328.3 174.9L326.7 168.3L321.9 168.7L319.2 166.1L321.4 155.4L324.8 154.6L325.6 151.8L325.6 150L322.6 150.9L323.5 147.5L328.4 146.4L326.9 141.7L328.6 140.4L329.5 132.4L327.5 130.7L328.6 120L330.6 116.5L326 113.2L328.9 109.4L328.6 102.4L331 102.4L338.8 88L358.7 85.9ZM392.5 107.1L392.3 111.4L389.3 111.1L391.7 105.2Z" },
+  { name: "Salamanca", d: "M216.7 248.3L227.9 249.8L240.9 257.2L246.1 254.4L249.9 256.3L248.9 260.5L252 258.7L253.8 261.9L256.6 258.4L256.1 254.7L257.7 252.8L267 254.9L274.8 252.1L276.9 255L279.7 256.1L281.4 254.8L287 258.3L287.1 261.4L287.6 258.4L292.6 257.7L293.1 261.4L298.1 264L300.3 263.2L301 256.8L303.5 256.4L306 260.1L308.7 259.4L312.6 262.7L310.7 269.1L315.1 275.2L312.4 279.1L313.3 283.9L309.9 287.1L310.3 291.5L306.3 297.3L294.7 304.8L294.3 310.1L289.7 313.9L286 313.7L285.9 312.2L284.8 313.3L284.2 317.5L291.1 315.3L288.3 324.6L285.3 324.6L284.1 328.4L280.7 326.4L281.7 323.4L276.5 324.9L272.4 328.5L273.7 335.3L267.7 341.4L264.5 340.1L266 338.6L264.7 334.8L258.6 337.4L256.4 341.9L251 339.9L249.3 336.1L243 334.5L245.9 330.8L241.3 328.6L242.2 326.7L240 327.2L233.8 322.5L226 326.6L224.1 330.3L212.4 335.4L208.8 342.5L202.8 343.2L201.5 345.1L199.5 342.6L196.8 345.5L191.2 344.7L189 342.5L189.2 340L194.1 337.1L195 333.8L191.2 329.8L190.1 325.6L194 320.1L193.6 316.6L190.5 315.1L194.1 306.3L191.4 297.8L191.8 289.4L193.6 289L184.4 272.1L193.1 271.5L196.9 265.4L196 262.4L204.5 251.9L208.5 251.2L209.9 252.7L213.4 249.3L216.5 249.4L215.7 248.1Z" },
+  { name: "Segovia", d: "M395.1 220.6L401.9 225.5L405 230.3L407.6 229.8L406.5 226.3L409.1 225L408.9 232.2L411 233.1L411.8 226.9L415.8 222.9L424.7 221.1L427.9 225.8L431 225.1L433.5 227L434.2 230.8L440.1 232.2L438.7 238.3L448.8 246.7L445.5 250.9L444 249.4L439.7 251.4L434.1 249.6L435 255.1L432 254.9L426.9 259.8L420 261.1L408.1 274.9L400.3 277.8L396.9 281.6L394 294.9L387.5 294L382.1 303.3L374.6 303.7L370.1 305.8L368.9 308.5L362.7 308.9L361.9 298.8L358.9 295.8L357.5 290.3L353 290.1L354.8 288L352.8 285.5L352.3 279L349.4 277.6L347.2 272L341.9 269.1L341.3 260.3L344.2 257.7L347.9 259.1L346.3 254.4L351.8 249.4L350.1 245.2L352.8 246.9L355 245.1L359.3 247.5L356 236.9L366.8 233.2L374 233.1L381.3 230.2L382.4 231.3L392.5 227L393.9 220.8Z" },
+  { name: "Tarragona", d: "M778.8 221.5L779.5 225.1L776.7 225.3L775.8 227.3L782.1 230.9L781.2 239.6L785.8 239.2L788.7 241.3L787.3 243.1L789.4 247.7L792.9 247.5L791.7 251.4L788.1 250.7L789.1 253L793.2 253.1L793.4 257L784.1 258.4L775.7 262.7L768.8 263L763.3 267.1L765.3 264.8L762.9 265.2L759.7 269.8L756.4 268L745.3 272.3L726.3 293L728.5 296.3L732.1 296.4L728.5 294.4L731 294.2L735.5 299.5L738.6 299.5L738 303.6L730.5 308.1L723.6 315.9L720.5 316.3L718.9 314L727 312.8L729.6 308.6L719.3 309.9L713.2 319.1L707.7 316.9L708.2 314L705.2 311.8L696.7 309.4L695.6 306.6L697.4 303.8L693.4 302.6L692.7 299.6L688.3 299L693 296.5L696.4 291.5L693.6 285.6L697.5 277.6L695 273.5L696.5 273L692.1 270.8L690.9 263.1L698.2 259.7L699.5 254L703.7 253L704 249L707.4 249.3L708 244.7L709.9 244.2L712.4 248L716 244.6L721.2 247.9L730.8 243.9L734.8 244.4L736.6 241.3L737.9 243.5L743.8 242.5L753 232.4L750.5 228.4L755.6 231.6L760.5 229.6L759.3 225.3L763.3 222.1L775.5 223.3L775.7 221.4Z" },
+  { name: "Teruel", d: "M640.9 242L643.2 245.4L646.7 246L647.8 249.6L652.7 252.5L654.1 251L660.7 257.3L675.5 263.5L679.2 270.6L682.2 267.4L687 269L692.3 268.3L692.1 270.8L696.5 273L695 273.5L697.5 277.6L693.6 285.6L696.4 291.5L693 296.5L687.9 298L688.3 300.5L684.6 300.2L679.6 303.5L677.7 300.1L672 300.2L664.9 294.5L660.7 297.7L659.9 303.5L654.8 306.5L653.3 304.5L649.8 305.7L650.3 310.7L655.8 311L655.2 319.8L657.3 323.7L652 326.4L656.6 333.7L649 339.2L649.4 343.1L646.2 345L641.5 346.4L638 344.3L635.5 354.9L632 358.1L633 361.1L628.1 363.5L623.1 363.3L621.4 367.8L617.1 369.8L616.9 374.6L620 378.6L615.3 381.8L611.8 379.4L611.2 370.9L606.4 369.3L595.5 370.2L593.9 366.7L599.6 364.3L600.5 362L595.1 357L588.2 356.9L584.4 348L582.9 354L580.2 355.7L574.8 354.7L574.4 349.3L567.2 349.9L556.6 338.9L554.4 341.8L553.8 339.5L556 337.8L548.3 330.7L556.4 322.5L557.4 312.8L563.1 315.5L566.9 312.4L565.5 310.6L567.6 303.9L565.7 299L567.1 292.4L561.5 286L561.7 280.1L565.7 280.6L569.7 278.2L572 279.6L573.9 276.3L571.8 273.5L575.9 272.1L576.8 268.7L580.3 266.7L580.4 269.6L585.2 270.4L587.6 267.7L586.3 265.3L587.5 263.5L597 262.4L598.1 259.4L602.8 262.4L607.6 260.7L605.7 266.1L608.9 267.9L611.8 266.3L613.9 261.1L615.6 264.9L620.3 265.1L622.5 259.2L627.3 264.5L633.3 257.1L629.1 252.9L632.2 251.9L631.9 246L634 245.3L638.9 253.8L640.4 252.8L635.3 242.6Z" },
+  { name: "Valencia", d: "M606.5 369.4L611.4 371.1L611.8 379.4L613.5 381.3L620.2 378.6L624.7 384.8L627.5 381.3L630 382.8L631.5 391L634.8 391.6L635.6 388.6L638.9 386.5L644.2 394.1L649.8 386.2L653.3 386L657.9 391.2L663.2 393.4L661.8 400.7L661.3 399.6L658.6 402.8L654.2 411.8L655.2 420.1L653.2 417.5L652.9 420.1L654.6 420.6L652.8 420.9L661.3 443L659.6 446.7L662.2 454.2L666.4 460.8L665.2 461L674.7 473.2L671.6 470.9L666.1 473.5L665.2 470.8L660.2 473.9L654.5 471.3L643.8 478.2L634.3 479.3L636.4 483L639 481.9L640.6 484.2L632 489.4L630.9 485.6L626.4 485L624.4 482.6L617.3 485.1L615.4 481.6L611.8 481.7L610.3 479.4L611 470.4L608.5 465.5L595.2 466.9L586.9 456.1L587.4 450.5L592.8 440.7L594.1 432L590.8 430.1L581.7 429.4L576.1 425.1L573.3 426.9L573.4 423.4L572 424.1L571.3 421.2L568.5 420.2L570.1 413.9L568.6 409.3L572.8 406.9L575.9 399.6L579.4 396.4L583.4 398.2L586.6 396.2L586 391.8L591.4 380.7L591.1 372.3L598.1 369.9ZM584.8 348.4L588.2 356.9L595.1 357L600.5 362.9L596.1 366.1L588.1 368.1L578.8 366.1L576.6 358.2L573.1 355.1L580.4 355.6L583.1 353.7L582.7 350.5Z" },
+  { name: "Valladolid", d: "M313.5 153.3L317.6 158.3L318.8 154.6L321.4 155.4L319.6 167.9L326.7 168.3L328.3 174.9L325.2 177.1L326 180.5L321.1 187.1L322.5 190.5L325.1 188.3L326.6 190.1L330.8 188.5L336.5 199.1L345.3 191.5L352.3 199.6L358.9 196.7L359.8 198.8L357.9 198.9L356.9 203.4L360.6 204.6L364.9 201.9L370 204.1L375.8 199.4L377.3 200.8L383.8 200L385.4 203.1L389.6 203.7L387.1 207.6L390.7 210.7L390 217.4L393.6 219.5L392.8 226.6L382.4 231.3L381.3 230.2L374 233.1L366.8 233.2L356 236.9L359 247.9L355 245.1L352.8 246.9L350.1 245.2L351.8 249.4L346.3 254.4L347.9 259.1L344.2 257.7L341.2 261L335.3 262.4L333.7 265.7L331.2 266.2L322.2 260L312.6 262.7L308.7 259.4L306 260.1L303.5 256.4L297.9 258.4L300.8 249.9L297.7 240.5L299.7 236.5L297.4 235.4L298.4 232.7L297 230.5L305.2 225.9L300.7 221.6L302.3 219.2L298.1 217.8L298.3 211.8L293.8 205.1L301.7 199.3L298 197.8L300.6 189.6L297.7 188L303.4 183.9L294.8 178.5L293.9 162L295.8 161.3L299.7 163.7L301.1 160.9L302.6 162.6L305.5 161.2L303.5 159.9L304.7 156.8L308.5 157.7ZM284.8 173.5L287.3 177.3L291.6 179.3L289.7 180.9L290.4 185.2L287 183.6L288 181.2Z" },
+  { name: "Vizcaya", d: "M481.2 47.1L485.2 51.7L488.7 50.9L490.6 53.1L498.4 54.5L505.3 59.7L503.4 62.1L504.9 64.7L503.6 66.9L499.2 69.1L499 80.5L487.6 82.6L489.6 87.6L471.1 85.2L465.3 80.2L468.1 76.8L467.4 73.6L461.6 69.3L461.6 74.5L458.2 75.9L455.6 76.2L452.3 73L447.6 73.7L445.6 71.1L433.9 77.1L431.7 67.6L439.4 63.7L439.9 61.5L443.7 62.6L447.6 60.8L448.7 63.2L452.8 61L452.7 56.7L455.4 57L457.6 54.4L456.1 55.7L460.2 56.1L458.2 56.6L462.1 59.3L460.7 54.9L467.3 51.3L467.3 49L477.3 49.6ZM444 64.9L441.8 66L443.3 71.1L445.8 65.4ZM460.1 85.2L462.2 86L461.2 87.6L464.5 88.3L464.6 90.2L466.7 89.6L460.8 91.1L457.2 89.3Z" },
+  { name: "Zamora", d: "M196.4 159.9L200.5 162.8L213.1 163.3L215.1 165.3L228.3 163L229.6 165.7L235.4 168.4L239.1 166.8L247 167.4L253.8 170.7L257.8 167.7L261.5 171.9L266.3 169.6L268.7 171.7L273.4 171L272.7 169.4L274.1 169L277.5 172.3L276.4 174.6L279.7 175L279.8 177.5L284.1 172.6L288.6 184.5L290.4 185.2L289.7 180.9L294.2 178.3L303.4 183.9L297.7 188L300.6 189.6L298 197.8L301.7 199.3L293.7 204.4L298.3 211.8L298.1 217.8L302.3 219.2L300.7 221.6L305.2 225.9L297 230.5L298.4 232.7L297.4 235.4L299.7 236.5L297.7 240.5L300.8 249.9L300.6 253.9L297.3 256.9L298 258.4L301 258L300.3 263.2L294 262.3L291.8 257.5L287.6 258.4L287.1 261.4L287 258.3L281.4 254.8L279.7 256.1L276.9 255L274.4 252.1L267 254.9L257.7 252.8L256.1 254.7L256.6 258.4L253.8 261.9L252 258.7L248.9 260.5L249.9 256.3L246.1 254.4L240.9 257.2L227.9 249.8L216.5 248.2L223.5 241.8L222.8 239.2L227.9 239.1L226.8 236.7L237 221.6L229 213.4L218.9 211.4L215.1 214L211.5 211.3L210.1 206L213.8 194.2L209.9 193L211.7 188.1L209.7 185.8L200.8 188.4L197.2 187.4L194.7 183.2L192.8 182.9L192.2 187.2L190.5 187.5L183.6 187.3L180.6 184.6L182.2 179.6L181.2 177.1L178.6 177.3L177.1 175.3L187.5 162.3L190.6 161L193.9 162.8L194.3 158.8Z" },
+  { name: "Zaragoza", d: "M612.1 113.2L611.1 117.2L614.1 118.4L610.7 121.3L612.4 126.6L610.3 129.1L613.1 131.3L610.3 135.3L613.2 134.9L614.3 139.4L612.4 141.9L618.7 145.5L616.7 146.5L611.4 158.3L613.4 159.9L614.3 156.1L619.3 157.1L621.4 145.9L624.3 147.9L624.9 154.7L622.7 157.7L622.4 175.9L620.3 177.1L618.9 173.6L613.8 181.8L621.4 186.1L629.9 186.1L634.3 191.5L633.8 193L639.9 197.3L641.1 204.3L639.8 207.3L650 211.1L651.1 216L659.2 221.8L662 219.1L665.5 220.2L665.5 225.3L669.2 229.9L673.1 241.5L676.1 242.6L675 238.1L677.3 241.5L683.3 242.4L688.2 237.2L692.2 237.5L693.7 235.2L700.3 236.9L699.4 238.3L703.2 242.3L701.4 244.4L704 249L703.7 253L699.5 254L697.4 260.4L690.9 263.1L692.3 268.3L687 269L682.2 267.4L679.2 270.6L675.5 263.5L660.7 257.3L654.1 251L652.7 252.5L647.8 249.6L646.7 246L643.2 245.4L640.9 242L635.3 242.6L635.6 245.8L640.5 251.2L638.9 253.8L634 245.3L631.9 246L632.2 251.9L629.1 252.9L633.3 257.1L627.3 264.5L622.5 259.2L620.3 265.1L615.6 264.9L613.9 261.1L611.8 266.3L608.9 267.9L605.7 266.1L607.6 260.7L602.8 262.4L598.1 259.4L597 262.4L587.5 263.5L586.3 265.3L587.6 267.7L585.2 270.4L580.4 269.6L580.3 266.7L576.8 268.7L575.9 272.1L571.8 273.5L573.9 276.3L572 279.6L569.7 278.2L565.7 280.6L560.8 279.5L548.5 266.6L539.4 262L537.5 258.9L530.9 261.3L524.2 257.8L522.5 245.3L523 241.9L526.3 239.5L526.6 234.6L531.2 234.6L532.5 239.3L539 237.1L535.9 229.8L536.9 224.3L535.1 219.2L540 219.4L544.6 213.6L548.3 213.3L550.5 207.7L545 201.7L547.5 195.8L544.7 190.6L545.4 181.4L551.1 182.6L554.8 186.2L559.1 185.4L565.9 190.2L576.4 189.7L583.9 178.2L583.5 175.5L580.6 175.4L577.3 170.5L577.8 165.4L575.9 162.5L577.3 155.2L582.2 149.2L580 147.1L581.3 142.9L586.2 137.5L585.1 133.7L586.8 130.6L591.2 131.2L591.3 128.6L594.4 126.6L592.8 125.6L594.4 125.5L594.8 122.1L601.9 122.6L603.6 117.3L607.8 116.9Z" },
+  { name: "Melilla", d: "M467.1 806.6L465.7 804.4L466.9 801.5L469 804.3Z" },
+  { name: "Málaga", d: "M363.6 620.3L365.6 620.3L366.1 625.8L369.6 626.8L373.2 644.4L376.1 644.2L380.7 649.7L385.4 650.1L389.3 654.8L397.5 656.6L401.9 659.6L404.8 659.2L409 664.1L408.3 670.1L403.6 668.6L395.6 671.2L387.7 669.1L379.7 672.2L362.8 672L356.2 683.5L349.7 686.3L347.2 691.5L339.9 693.7L331.4 691.4L326.1 692.1L321.2 695.8L308.9 700.1L303.9 709.7L301.8 707.2L298.8 708.3L296.8 699.7L291 689L286.5 688.7L284.3 692.3L278.3 691L278.6 687.6L284.3 689.2L289.1 681L294.5 679.9L298.5 676L300.8 666.6L297.3 662.5L300.1 657.8L302.3 656.5L309.3 662.1L312 660.7L315.3 654.6L314.7 648.7L311.4 645.2L312.9 643.1L317.7 642.9L328 635.1L325.8 629.5L328.2 628.9L328.8 631.3L330.3 631.1L331.9 627.3L333.9 627.1L336.2 631.5L342.2 627.4L340.3 623.1L341.4 621.7L348.9 622.1L349.7 626.4L351.6 626.4L357.2 625L360.9 620Z" },
+  { name: "Almería", d: "M521.7 562.4L536.4 565.2L533.7 580.8L536.2 588.4L545.6 603.6L548.1 605.6L547.9 603.9L553.2 604.7L560.8 611L549 624.5L541.4 651.6L538.8 651.6L535.1 655.6L534.6 660.6L530.3 663.4L530.3 666.4L527 667.8L525.7 670.6L521.5 671.8L513.9 662.4L508.9 660.4L504.3 663.3L500.8 660.9L501.6 661.9L494.7 662.8L490.6 671.1L484.8 675.1L479.8 675.3L476.6 673L474.2 674L468.9 668.8L465.1 670L454.4 668.9L453.6 665.4L461.5 660.2L458.4 653.2L461.3 652.7L461.5 650.6L465.2 647.8L461.4 635.3L467.2 636.8L474.5 619.9L479.2 621.4L480.7 624.7L482.5 623.8L487.7 626.1L489 609.8L498.1 601.3L502.1 600.2L502.2 598.5L509.1 597.3L506.8 587.1L512.6 587L511.6 581.4L514.9 573.8L513.1 570.8L513.6 564.5L519.8 560.8Z" },
+  { name: "Murcia", d: "M595 483.9L603.7 492.4L605.5 499.9L604.6 507L598.9 512.4L599.6 520.9L606.4 523.3L607.9 527.5L603 540.3L604 546L612.7 560.2L617.6 565.6L622.5 567.2L623.3 569.6L623.2 572.7L621.5 569.8L620.1 570.6L615.8 579.6L619.6 584.7L624.9 586.9L623.6 573.4L625.4 577.1L624.7 582.8L627.7 587.1L624.6 590L611.3 594.4L608.4 594L606.2 590L606.7 591.6L604.3 592.7L600.3 591.6L597.9 593L596.6 594.6L597.7 596.2L590.4 592.4L582.4 593.6L573 600.6L571.1 606.5L568.7 605.7L561.1 611.1L553.2 604.7L547.9 603.9L548.1 605.6L545.6 603.6L533.7 583.4L536.4 565.2L527.4 564.4L525.8 562.3L522.4 563.4L510.3 550.6L511.1 547L516 542.6L519.5 534.2L526.5 531L531.1 524.7L535.8 527L541.1 525.4L552.7 517.7L556.8 519.1L558 524.1L566 522.9L571.6 518.1L570.2 503.7L573.5 499.1L573.8 492.8L579.6 487.8L581.2 490.3L587.9 484.6L592.6 483Z" },
+  { name: "Albacete", d: "M571.2 421.5L571.7 423.9L573.5 423.5L573.3 426.9L576.1 425.1L581.7 429.4L593.9 431.5L592.8 440.7L587.4 450.5L586.7 455.6L595.2 466.9L608.5 465.5L611 470.4L610.9 476.7L610.6 480.4L608.3 481.2L611.6 488.5L608.3 492.1L603.2 492.2L597.4 487.1L597.1 484.6L592.6 483L587.9 484.6L581.2 490.3L578.3 488.2L573.8 492.8L573.5 499.1L570.3 503.2L571.6 518.1L563.7 524.3L558 524.1L556.7 519L551 517.9L541.1 525.4L535.8 527L530 525.4L526.5 531L519.5 534.2L510.3 550.6L504.6 549.9L495.7 545.6L502.9 535.9L503.6 527.8L500.1 525.2L500.3 516.3L494 514.6L494.3 507.6L492.5 505.7L486.3 507L480.3 503.4L481.5 502.3L480.3 494.8L482.9 495.9L487.1 492.8L489.3 484.9L485.1 480.5L482.6 480.6L480.4 471.4L471.9 466L475.5 458.2L477 458.1L477.4 453L474.7 447.9L483.2 435.8L481.8 430.9L490.6 428.8L495.6 430.3L498.3 428.6L508 438.7L509.7 434.5L511.8 434L514.1 439.3L522.6 434.3L531 435.6L527.8 427L533.1 427.7L535.3 433.1L542.6 432.1L550.9 434.3L553.1 430.5L566.1 423.1Z" },
+  { name: "Barcelona", d: "M812.9 152.7L823.6 155.1L819.9 160.6L822.5 161.8L823 165.7L819 167.1L819.2 164.2L816.2 163.7L819 168.3L825.2 168.8L827.6 171.7L828.9 170L833 170.7L837.8 168.7L839.9 169.7L839.6 172.7L844.7 170.9L848.3 176.2L851.2 174.8L853.5 175.9L854.1 182L852 182.8L853.3 183.6L852.4 185L849.1 185.1L852.8 190L845.8 194.1L842 193L843.6 199.8L852.2 201.7L857.5 208.2L865.4 205.6L873.8 206.7L872.5 211.9L873.9 214.6L837.6 232.3L826.9 248L793.6 257L793.2 253.1L789.1 253L788.1 250.7L791.7 251.4L792.9 247.5L789.4 247.7L787.3 243.1L788.7 241.3L785.8 239.2L781.2 239.6L782.1 230.9L775.8 227.3L776.7 225.3L779.5 225.1L778.3 223.4L779.9 222.1L775.5 221.6L776.5 219.2L773.2 218L779.5 215.9L774.8 209.5L777.8 207L776.3 205.8L777.3 201.2L781.1 200.6L780.4 202.9L783.5 201.8L785.3 205.1L789.8 202.8L792.4 195.3L791.6 193.2L788.1 193.3L794 188.8L793.8 184.1L796.1 185.2L798.7 183.6L797.2 180.8L797.2 183.6L793.7 182.2L794.2 180.2L794.9 181.9L797.3 179.5L795.2 178.1L796.7 174.1L798.9 173.7L797.3 169.6L800.1 165.8L796 163.1L797.7 160L795.3 156.1Z" },
+  { name: "Cádiz", d: "M290.9 641.1L291.7 644.5L288.8 648L290.3 651.8L300 642.3L304.8 651.2L311.4 645.4L313.3 646.8L315.3 654.6L309.4 662.1L302.3 656.5L300.1 657.8L297.3 662.5L300.8 666.6L298.5 676L294.5 679.9L289.1 681L284.3 689.2L278.1 688L278.3 691L284.3 692.3L286.5 688.7L291 689L296.8 699.7L298.8 708.3L301.8 707.2L303.6 709.6L299 717.2L297.5 724.2L293.7 721.7L290.2 723.4L291 731.9L278.1 738.5L275.2 733.5L264.9 731.2L256.5 721.3L248 721.7L228.5 689.5L230.6 688.1L232.2 694.6L234.2 695.6L238.2 690.1L233 691.3L233.9 684.2L232.8 685.4L233.6 684.3L231.6 684.7L229.2 681.2L222.9 680.2L219 670.1L226.2 664.8L225.4 659.2L227 655.1L230.7 654L243.1 659L258.2 660.4L261.5 653.6L270.8 653.1L274.1 648L277.6 651.3L279.8 650.7L280.1 653.6L283.6 655.6L282.7 652.2L288.1 647.2L285.2 642.6Z" },
+  { name: "Jaén", d: "M480.1 503.6L484.7 506.6L492 505.5L494.1 507.2L494 514.6L500.3 516.3L500.1 525.2L503.6 527.8L502.9 535.9L496.2 544.5L491.5 547.3L491.6 553.2L487 556.6L484.7 555.7L478.8 560.7L470.4 576.1L471.8 582.6L465.1 587L465.1 589.9L459.9 588.4L457.3 590.5L451.3 586.2L448.2 586L444.9 586.5L442.5 591.2L435.2 593.5L427.6 588.5L419 596.8L408.4 601.6L407.8 600.2L403.8 609.9L393.7 609.7L386.3 600.7L388.3 598.9L385.6 598.3L380.2 589.2L376.9 588.2L376.3 586.5L380.9 582.6L375.6 579L377.8 573.4L372.2 571.9L374.2 558.7L372.5 551L375.5 548.7L374.6 547.2L377 542.8L381.1 539.5L377.1 530.1L377.6 525.1L375.6 523.8L375.7 521.4L373.4 520.8L373.5 516.1L398.6 518.8L402.9 518.3L404.6 514.8L407.8 513.6L421.1 516.1L423.3 511.1L425.5 512.3L426 515.2L430.1 516.1L436.8 512.3L436.9 509L440.4 508.3L453.7 512.4L458.9 508.7L463.4 515.2L466.1 509.3L472 511.1L479.2 505.8Z" },
+  { name: "Córdoba", d: "M319 485.7L321.2 488.6L330.2 489.4L331.4 496.1L342.3 500L350.4 507.9L356.1 510L360.4 515.9L375.7 521.4L375.6 523.8L377.6 525.1L377.1 530.1L381.1 539.6L377 542.8L374.1 551L372.5 550.9L374.2 558.7L372.2 571.9L377.9 573.6L375.6 579L380.9 582.6L376.3 586.5L376.9 588.2L380.2 589.2L385.6 598.3L388.3 598.9L386.3 600.7L392.5 608.5L386.4 608.3L381.3 614L378 613L375.7 614.6L374.4 624.5L369.3 628.7L369.6 626.8L365.4 624.3L365.6 620.2L362.8 619.6L358.1 622.3L357.2 625L349.7 626.4L348.9 622.1L346.7 622.9L344.2 618.9L345.8 617.5L343.9 616.5L344.8 614.7L341.5 612.5L340.7 614.7L337 615.3L334.1 612.5L332.8 605.3L329.7 605.1L328.2 599.4L325.1 597.4L326.4 588.5L323.3 590.1L324.8 585.3L321.5 580.2L316.3 580.1L315 582.7L316.5 584.6L312.3 581L313.8 584.3L308.9 582.7L296.5 591.6L292.1 585.9L293.5 585L292.8 581.5L294.8 582.9L297 580.4L299.7 580.9L299.5 574L296.6 572.1L297 567.9L292 565.1L292 558.3L287.8 555.3L286.3 549.2L280.2 542.3L279.9 540L283.2 538.1L284.5 533.7L280 515.9L282.2 511.7L287.1 510.1L292.6 502.6L294.3 503L295.1 498.9L299.6 499.5L306.7 491.1L308.4 491.9L309.6 490L308.4 486.3L314.5 487.4ZM315.7 585.8L319.3 586.3L320.2 590.8L318.1 589.4L318.6 587.7Z" },
+  { name: "Granada", d: "M495.5 545.4L504.5 549.9L510.3 550.6L519.8 560.8L513.6 564.5L513.1 570.8L514.9 573.8L511.6 581.4L512.5 587.3L506.8 587.1L509.1 597.3L502.2 598.5L502.1 600.2L498.1 601.3L489 609.8L487.7 626.1L482.5 623.8L480.7 624.7L479.2 621.4L474.5 619.9L467.2 636.8L461.4 635.3L465.2 647.8L461.5 650.6L461.3 652.7L458.4 653.2L461.5 660.2L453.6 665.4L454.4 668.9L439.6 670L433.7 674.1L429.3 673.8L426.2 671.3L424.2 672.2L420.8 669.4L411.4 671.7L408.3 670.1L409 664.1L404.8 659.2L401.9 659.6L397.5 656.6L389.3 654.8L385.4 650.1L380.7 649.7L376.1 644.2L373.2 644.4L372.1 634.7L369.3 628.7L374.4 624.5L375.7 614.6L378 613L381.3 614L386.4 608.3L392.5 608.5L396 610.7L403.7 610L407.8 600.2L408.4 601.6L419 596.8L427.6 588.5L435.2 593.5L442.5 591.2L444.9 586.5L448.2 586L451.3 586.2L457.3 590.5L459.9 588.4L465.1 589.9L465.1 587L471.8 582.6L470.4 576.1L478.8 560.7L484.7 555.7L487 556.6L491.6 553.3L491.5 547.3Z" },
+  { name: "Madrid", d: "M425.4 260L428.8 266.2L433.3 267.2L432.4 270.9L435.5 274.9L430.8 283.5L432.3 286.5L430 287.5L427.2 294.5L432 297L432.7 300.1L430.3 303.6L434.8 305.5L435.6 303.4L439 308.5L441.1 306.9L439.5 309.6L443.4 314.9L442.4 317.8L445.8 317.1L449.3 319.9L449.4 326.6L452.5 326.9L454.3 330L449.7 344.6L451.2 345.9L452.6 343.2L456.3 341.8L458.7 353L457.2 352.5L456.7 354.4L459.6 357.1L459.2 359.2L455.2 361.9L452.1 361.6L450.9 359.1L449.3 362L444 363.2L440 360.1L436.9 360.6L435.1 364.4L427.6 363.1L426.6 365.7L418.2 368.7L418.5 370.8L410.7 373.1L406.4 378.3L401.9 376.4L401.4 374.2L406.1 371.9L407.9 372.7L409.3 370.6L410 372.2L413.8 365.8L418.4 363.7L420.4 357.5L416.2 354.3L410.7 355.4L406.4 351.2L404.3 352.6L401.6 350L397.4 348.7L396 350L395.9 347.9L393.2 348.2L387.3 343L385.1 345.2L382.2 344.9L379 340L378.1 342.7L374.9 342.3L370.8 347L367.8 345.7L367.2 339L365.5 338.1L361.5 345.7L355 349.1L351.7 348.5L352.1 343.6L354.9 340.4L353.7 335.9L356.8 338.4L360.2 338L362.6 329.9L369.7 329.6L368.3 327.9L370.1 324.5L369.2 318.1L372 315.3L371.9 309.4L375.1 311.8L381.1 309.8L380.3 304.5L387.1 294.5L394 294.9L395.9 284.8L399.1 279L408.1 274.9L420 261.1Z" },
+  { name: "Sevilla", d: "M270 534.9L272.9 538.4L271.4 537.3L272.1 539.2L269 540.7L269.3 545L272.2 545.3L276.6 540.2L280 540.8L286.3 549.2L286.5 553.4L292 558.3L292 565.1L297.4 568.5L296.6 572.1L299.5 574L299.7 580.8L297 580.4L294.8 582.9L293.9 581.1L292.1 583.2L296.1 591.5L308.9 582.7L313.8 584.3L312.3 581L316.5 584.6L315 582.7L316.3 580.1L321.5 580.2L324.8 585.3L323.3 590.1L326.4 588.5L325.1 597.4L328.2 599.4L329.7 605.1L332.8 605.3L334.1 612.5L337 615.3L340.7 614.7L341.5 612.5L344.9 614.7L343.9 616.5L345.6 618.5L344.2 618.9L346.1 622L340.3 623.1L342.2 627.4L336.2 631.5L333.9 627.1L331.9 627.3L330.3 631.1L328.8 631.3L328.2 628.9L325.8 629.5L328 635.1L317.7 642.9L312.8 643.2L305.5 651.1L300 642.3L290.3 651.8L288.8 648L291.7 644.5L290.7 640.9L285.2 642.6L288.1 647.2L282.7 652.2L283.6 655.6L280.1 653.6L279.8 650.7L277.6 651.3L274.1 648L270.8 653.1L261.5 653.6L258.2 660.4L243.1 659L230.7 654L227 655.1L223.6 651.8L225.3 646.8L223 638.9L226.2 634.4L224.9 623.7L226.8 618L223.2 614.5L225.9 611.8L225.2 607.5L228.7 605.6L222.6 594.4L222.4 589.1L212.9 588.7L212.4 585.4L214.9 583.8L216.7 578.5L228.4 574.8L232.6 575L232.5 576.9L234.7 577.2L236.1 571.1L241 572.7L241.8 570L238.8 565.8L241.6 561.9L238 560.9L238.6 557.1L246.8 553.3L253.8 553.5L256.9 547.2L255.7 543.3L259.4 538.4ZM319.7 590.2L319.3 586.3L315.5 585.7L320.2 590.8Z" },
+  { name: "Toledo", d: "M365.9 338.5L367.8 345.7L370.8 347L374.9 342.3L378.1 342.7L379 340L382.2 344.9L385.1 345.2L387.3 343L393.2 348.2L395.9 347.9L396 350L397.4 348.7L401.6 350L404.3 352.6L406.4 351.2L408.8 354.7L416.2 354.3L420.4 357.5L418.4 363.7L410.6 369.4L411.8 370.9L401.4 374.2L401.8 376.4L405.7 378.2L410.7 373.1L418.5 370.8L418.2 368.7L421.6 366.4L426.6 365.7L427.6 363.1L435.1 364.4L436.7 360.7L439.8 360.1L444 363.2L449.3 362L451.7 359.2L453.4 369L456.7 368.8L454.5 379.2L458.1 381L463.7 393.7L470.1 400.8L468.4 416.7L463.6 419.4L458.6 418.6L453.4 414.4L450.4 416.4L442.7 416.7L441.6 423.3L434.4 422.8L425.7 432.1L415.2 432.7L412.2 435.3L407.4 433.2L402.9 436.4L394.9 432.6L394.5 427.7L387.3 426.5L385.1 428.7L382 426.7L384.1 418L387.7 417.9L388.3 412L390.4 411.9L389.6 407L381.3 406.9L378.8 414.4L375.3 416L361.1 411.8L359.7 416L356.2 411.9L358.3 410.4L355.2 408.3L352.2 414.2L348.6 415.4L348.6 418.2L343.5 418.4L338.9 421.8L339.1 413.8L331.2 408.8L325.1 423.9L306.8 405L311.7 394L309.1 390.7L309.6 386.2L306.8 386.4L303.4 390.6L299.6 389.9L299.3 383.9L301.3 380.2L298.5 377.6L292.7 378.9L295.6 369.2L296 357.6L306.1 357.6L307 359.9L309.3 359.7L316.7 353.6L320.2 352.9L320.6 357.3L324.7 356.4L326.8 355L326.9 351.8L335.2 345.8L335.5 342.1L338.4 343.4L342.9 341.4L343.7 348L346.1 349.2L351.4 347.5L355 349.1L361.5 345.7L365.3 340.8Z" }
+  ];
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (m) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&#39;', "'": '&#39;' }[m];
+    });
+  }
+
+  function normalizeText(s) {
+    return String(s).normalize('NFD').replace(new RegExp('[̀-ͯ]', 'g'), '').toLowerCase();
+  }
+
+  var provincesMap = {};
+  CLINICS.forEach(function (c) {
+    if (!provincesMap[c.p]) provincesMap[c.p] = [];
+    provincesMap[c.p].push(c);
+  });
+  var provinceNames = Object.keys(provincesMap).sort(function (a, b) { return a.localeCompare(b, 'es'); });
+
+  document.getElementById('cdSubtitle').textContent =
+    CLINICS.length + ' clínicas en ' + provinceNames.length + ' provincias de España';
+
+  // ── Carrusel ──
+  var carCardEl = document.getElementById('cdCarCard');
+  var carBadgeEl = document.getElementById('cdCarBadge');
+  var carTitleEl = document.getElementById('cdCarTitle');
+  var carClinicsEl = document.getElementById('cdCarClinics');
+  var carDotsEl = document.getElementById('cdCarDots');
+  var carPrevBtn = document.getElementById('cdCarPrev');
+  var carNextBtn = document.getElementById('cdCarNext');
+  var carouselEl = document.getElementById('cdCarousel');
+
+  var PIN_ICON_SVG = '<svg class="cd-car-clinic-pin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+
+  var currentIndex = 0;
+  var autoplayTimer = null;
+  var AUTOPLAY_MS = 4500;
+
+  function clinicRowHtml(c) {
+    return '<div class="cd-car-clinic-row">' + PIN_ICON_SVG +
+      '<div><div class="cd-car-clinic-name">Cleardent ' + esc(c.n) + '</div>' +
+      '<div class="cd-car-clinic-addr">' + esc(c.a) + ', ' + esc(c.c) + '</div></div></div>';
+  }
+
+  function renderClinicsList(clinics) {
+    var html = '';
+    clinics.forEach(function (c) { html += clinicRowHtml(c); });
+    carClinicsEl.innerHTML = html;
+  }
+
+  function renderCarouselDots() {
+    var html = '';
+    provinceNames.forEach(function (name, i) {
+      html += '<button class="cd-car-dot" type="button" data-index="' + i + '" aria-label="' + esc(name) + '"></button>';
+    });
+    carDotsEl.innerHTML = html;
+    Array.prototype.forEach.call(carDotsEl.querySelectorAll('.cd-car-dot'), function (dot) {
+      dot.addEventListener('click', function () {
+        goToIndex(Number(dot.getAttribute('data-index')), true);
+      });
+    });
+  }
+
+  function renderCarouselCard() {
+    var province = provinceNames[currentIndex];
+    var clinics = provincesMap[province];
+    carCardEl.classList.add('cd-car-fade');
+    window.setTimeout(function () {
+      carBadgeEl.textContent = clinics.length + (clinics.length === 1 ? ' clínica Cleardent' : ' clínicas Cleardent');
+      carTitleEl.textContent = province;
+      renderClinicsList(clinics);
+      carClinicsEl.scrollTop = 0;
+      carCardEl.classList.remove('cd-car-fade');
+    }, 150);
+    Array.prototype.forEach.call(carDotsEl.querySelectorAll('.cd-car-dot'), function (dot, i) {
+      dot.classList.toggle('active', i === currentIndex);
+    });
+    setActiveProvince(province);
+  }
+
+  function goToIndex(i, manual) {
+    currentIndex = ((i % provinceNames.length) + provinceNames.length) % provinceNames.length;
+    renderCarouselCard();
+    if (manual) restartAutoplay();
+  }
+
+  function startAutoplay() {
+    stopAutoplay();
+    autoplayTimer = window.setInterval(function () { goToIndex(currentIndex + 1, false); }, AUTOPLAY_MS);
+  }
+  function stopAutoplay() {
+    if (autoplayTimer) { window.clearInterval(autoplayTimer); autoplayTimer = null; }
+  }
+  function restartAutoplay() {
+    startAutoplay();
+  }
+
+  carPrevBtn.addEventListener('click', function () { goToIndex(currentIndex - 1, true); });
+  carNextBtn.addEventListener('click', function () { goToIndex(currentIndex + 1, true); });
+  carouselEl.addEventListener('mouseenter', stopAutoplay);
+  carouselEl.addEventListener('mouseleave', startAutoplay);
+
+  // ── Mapa SVG ──
+  var provincesEl = document.getElementById('cdProvinces');
+  var pinsEl = document.getElementById('cdPins');
+  var tipEl = document.getElementById('cdMapTip');
+  var tipTextEl = document.getElementById('cdMapTipText');
+  var mapOuterEl = document.querySelector('.cd-map-outer');
+
+  var SHADOW_MAX = 7;
+  var SHADOW_R = 30;
+
+  function renderProvincePaths() {
+    var html = '';
+    PROVINCE_PATHS.forEach(function (p) {
+      var realName = normGeo(p.name);
+      var hasClinics = !!provincesMap[realName];
+      html += '<path d="' + p.d + '" class="province' + (hasClinics ? ' has-clinics' : '') + '" data-province="' + esc(realName) + '"><title>' + esc(realName) + '</title></path>';
+    });
+    provincesEl.innerHTML = html;
+  }
+
+  function renderPins() {
+    var html = '';
+    provinceNames.forEach(function (province) {
+      var clinics = provincesMap[province];
+      var n = clinics.length;
+      var geo = GEO_CENTROID[province];
+      var cx, cy;
+      if (geo) {
+        cx = geo.lon; cy = geo.lat;
+      } else {
+        cx = clinics.reduce(function (s, c) { return s + c.lng; }, 0) / n;
+        cy = clinics.reduce(function (s, c) { return s + c.lat; }, 0) / n;
+      }
+      var pt = projectPoint(cx, cy);
+      var shadowCount = Math.min(n - 1, SHADOW_MAX);
+
+      html += '<g class="prov-group" data-province="' + esc(province) + '" data-count="' + n + '" transform="translate(' + pt.x + ',' + pt.y + ')">';
+      html += '<title>' + esc(province) + ' · ' + n + (n > 1 ? ' clínicas' : ' clínica') + '</title>';
+
+      for (var i = 0; i < shadowCount; i++) {
+        var t = shadowCount === 1 ? 0.5 : i / (shadowCount - 1);
+        var angle = (-150 + t * 120) * (Math.PI / 180);
+        var sx = Math.round(Math.cos(angle) * SHADOW_R * 10) / 10;
+        var sy = Math.round(Math.sin(angle) * SHADOW_R * 10) / 10;
+        html += '<use href="#pin-shadow" class="pin-shadow" x="' + sx + '" y="' + sy + '" />';
+      }
+
+      html += '<g class="pin-scale"><use href="#pin-main" x="0" y="0" /></g>';
+      html += '</g>';
+    });
+    pinsEl.innerHTML = html;
+
+    Array.prototype.forEach.call(pinsEl.querySelectorAll('.prov-group'), function (g) {
+      g.addEventListener('mouseenter', function () {
+        showTip(g);
+      });
+      g.addEventListener('mouseleave', function () {
+        hideTip();
+      });
+      g.addEventListener('click', function () {
+        var idx = provinceNames.indexOf(g.getAttribute('data-province'));
+        if (idx !== -1) goToIndex(idx, true);
+      });
+    });
+  }
+
+  function showTip(pinGroup) {
+    if (!window.matchMedia('(hover: hover)').matches) return;
+    var province = pinGroup.getAttribute('data-province');
+    var count = pinGroup.getAttribute('data-count');
+    tipTextEl.textContent = count + (count > 1 ? ' clínicas en ' : ' clínica en ') + province;
+
+    var pinEl = pinGroup.querySelector('.pin-scale');
+    var pinRect = pinEl.getBoundingClientRect();
+    var wrapRect = mapOuterEl.getBoundingClientRect();
+    var cx = pinRect.left + pinRect.width / 2 - wrapRect.left;
+    var cy = pinRect.top - wrapRect.top;
+
+    tipEl.style.left = cx + 'px';
+    tipEl.style.top = cy + 'px';
+    tipEl.style.opacity = '1';
+    tipEl.style.transform = 'translate(-50%, calc(-100% - 10px))';
+  }
+  function hideTip() {
+    tipEl.style.opacity = '0';
+  }
+
+  function setActiveProvince(province) {
+    Array.prototype.forEach.call(pinsEl.querySelectorAll('.prov-group'), function (g) {
+      g.classList.toggle('cd-selected', !!province && g.getAttribute('data-province') === province);
+    });
+  }
+
+  function applyMapFilter(filterText) {
+    var filter = normalizeText((filterText || '').trim());
+    Array.prototype.forEach.call(provincesEl.querySelectorAll('.province'), function (p) {
+      var name = p.getAttribute('data-province');
+      var clinics = provincesMap[name] || [];
+      var match = !filter || clinics.some(function (c) { return normalizeText(c.n + ' ' + c.c + ' ' + name).indexOf(filter) !== -1; });
+      p.classList.toggle('dimmed', !!filter && !match);
+    });
+    Array.prototype.forEach.call(pinsEl.querySelectorAll('.prov-group'), function (g) {
+      var name = g.getAttribute('data-province');
+      var clinics = provincesMap[name] || [];
+      var match = !filter || clinics.some(function (c) { return normalizeText(c.n + ' ' + c.c + ' ' + name).indexOf(filter) !== -1; });
+      g.classList.toggle('dimmed', !!filter && !match);
+    });
+  }
+
+  renderProvincePaths();
+  renderPins();
+  renderCarouselDots();
+  renderCarouselCard();
+  startAutoplay();
+
+  // ── Buscador ──
+  var searchInputEl = document.getElementById('cleardent-search-input');
+  var searchResultsEl = document.getElementById('cleardentSearchResults');
+
+  function clinicMatchScore(c, province, filter) {
+    var nameN = normalizeText(c.n);
+    var cityN = normalizeText(c.c);
+    var provN = normalizeText(province);
+    if (cityN === filter || nameN === filter) return 0;
+    if (cityN.indexOf(filter) === 0 || nameN.indexOf(filter) === 0) return 1;
+    if (cityN.indexOf(filter) !== -1 || nameN.indexOf(filter) !== -1) return 2;
+    if (provN === filter) return 3;
+    if (provN.indexOf(filter) === 0) return 4;
+    if (provN.indexOf(filter) !== -1) return 5;
+    return -1;
+  }
+
+  function findMatchingClinics(filter) {
+    var matches = [];
+    provinceNames.forEach(function (province) {
+      provincesMap[province].forEach(function (c) {
+        var score = clinicMatchScore(c, province, filter);
+        if (score !== -1) matches.push({ c: c, province: province, score: score });
+      });
+    });
+    matches.sort(function (a, b) {
+      return a.score - b.score || a.c.n.localeCompare(b.c.n, 'es');
+    });
+    return matches;
+  }
+
+  function hideSearchResults() {
+    searchResultsEl.style.display = 'none';
+    searchResultsEl.innerHTML = '';
+  }
+
+  function renderSearchResults(filter) {
+    var matches = findMatchingClinics(filter);
+    if (matches.length === 0) {
+      searchResultsEl.innerHTML = '<div class="cleardent-search-empty">¿No ves tu zona? Seguro que tenemos una clínica cerca.<br><a href="https://clear.cleardent.es/convenios/travelclub#pide-cita" target="_blank" rel="noopener">Pide cita</a> o llama al <a href="tel:+34635361303">635&nbsp;36&nbsp;13&nbsp;03</a> y te decimos cuál es.</div>';
+    } else {
+      var html = '';
+      matches.slice(0, 8).forEach(function (m) {
+        html += '<button type="button" class="cleardent-search-result" data-province="' + esc(m.province) + '">' +
+          '<div class="cleardent-search-result-name">Cleardent ' + esc(m.c.n) + '</div>' +
+          '<div class="cleardent-search-result-addr">' + esc(m.c.a) + ', ' + esc(m.c.c) + '</div></button>';
+      });
+      searchResultsEl.innerHTML = html;
+      Array.prototype.forEach.call(searchResultsEl.querySelectorAll('.cleardent-search-result'), function (btn) {
+        btn.addEventListener('mousedown', function (e) { e.preventDefault(); });
+        btn.addEventListener('click', function () {
+          var idx = provinceNames.indexOf(btn.getAttribute('data-province'));
+          if (idx !== -1) goToIndex(idx, true);
+          searchInputEl.value = '';
+          applyMapFilter('');
+          hideSearchResults();
+          startAutoplay();
+        });
+      });
+    }
+    searchResultsEl.style.display = 'block';
+  }
+
+  searchInputEl.addEventListener('input', function (e) {
+    var val = e.target.value;
+    applyMapFilter(val);
+    var filter = normalizeText(val.trim());
+    if (!filter) {
+      hideSearchResults();
+      startAutoplay();
+      return;
+    }
+    stopAutoplay();
+    renderSearchResults(filter);
+  });
+
+  searchInputEl.addEventListener('focus', function () {
+    var filter = normalizeText(searchInputEl.value.trim());
+    if (filter) renderSearchResults(filter);
+  });
+
+  searchInputEl.addEventListener('blur', function () {
+    window.setTimeout(hideSearchResults, 150);
+  });
+</script>
+
+</body>
+</html>
