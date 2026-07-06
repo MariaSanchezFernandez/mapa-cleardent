@@ -810,6 +810,19 @@
   searchInputEl.addEventListener('blur', function () {
     window.setTimeout(hideSearchResults, 150);
   });
+
+  // ── Auto-altura para el iframe ──
+  function reportHeight() {
+    var h = document.documentElement.scrollHeight;
+    window.parent.postMessage({ cleardentMapHeight: h }, '*');
+  }
+  window.addEventListener('load', reportHeight);
+  window.addEventListener('resize', reportHeight);
+  if (window.ResizeObserver) {
+    new ResizeObserver(reportHeight).observe(document.body);
+  } else {
+    window.setInterval(reportHeight, 500);
+  }
 </script>
 
 </body>
