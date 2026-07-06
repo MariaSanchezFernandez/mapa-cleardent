@@ -309,6 +309,7 @@
     height: auto;
   }
   .province {
+    fill: #fff;
     stroke: var(--cd-primary);
     stroke-width: 0.8;
     stroke-linejoin: round;
@@ -399,7 +400,7 @@
               <h2 class="cd-car-title" id="cdCarTitle"></h2>
             </div>
             <div class="cd-car-clinics" id="cdCarClinics"></div>
-            <a class="cd-car-cta" href="https://clear.cleardent.es/convenios/travelclub#pide-cita" target="_blank" rel="noopener">Pide tu cita&nbsp;→</a>
+            <a class="cd-car-cta" href="https://clear.cleardent.es/convenios/travelclub#pide-cita" target="_top">Pide tu cita&nbsp;→</a>
           </div>
         </div>
         <button class="cd-car-nav" id="cdCarNext" type="button" aria-label="Provincia siguiente">&#10095;</button>
@@ -764,7 +765,7 @@
   function renderSearchResults(filter) {
     var matches = findMatchingClinics(filter);
     if (matches.length === 0) {
-      searchResultsEl.innerHTML = '<div class="cleardent-search-empty">¿No ves tu zona? Seguro que tenemos una clínica cerca.<br><a href="https://clear.cleardent.es/convenios/travelclub#pide-cita" target="_blank" rel="noopener">Pide cita</a> o llama al <a href="tel:+34635361303">635&nbsp;36&nbsp;13&nbsp;03</a> y te decimos cuál es.</div>';
+      searchResultsEl.innerHTML = '<div class="cleardent-search-empty">¿No ves tu zona? Seguro que tenemos una clínica cerca.<br><a href="https://clear.cleardent.es/convenios/travelclub#pide-cita" target="_top">Pide cita</a> o llama al <a href="tel:+34635361303">635&nbsp;36&nbsp;13&nbsp;03</a> y te decimos cuál es.</div>';
     } else {
       var html = '';
       matches.slice(0, 8).forEach(function (m) {
